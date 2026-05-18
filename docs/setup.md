@@ -45,9 +45,15 @@ The FastMCP server (Part 2) is spawned automatically as a subprocess — you do 
 
 ## Docling Cache
 
-On first run, Docling parses the PDF and writes the result to `data/cache/`. Subsequent runs reuse the cache, so re-parsing is skipped. The cache directory is gitignored.
+On first run, Docling parses the PDF and writes two files to `data/cache/`:
+- `<stem>.json` — serialised `DoclingDocument` including GPT-4o chart descriptions
+- `<stem>.md` — full markdown export
 
-To force a re-parse, delete `data/cache/`.
+First-run latency is **~60–100s + one GPT-4o vision API call per chart** (4 charts in this PDF). Subsequent runs skip re-parsing and re-description entirely:
+- `parse_pdf` returns the cached markdown in <1ms
+- `parse_pages` loads the cached `DoclingDocument` from JSON in ~3–4s
+
+The cache directory is gitignored and created automatically. To force a full re-parse (including new GPT-4o chart calls), delete `data/cache/`.
 
 ## Related
 - [Architecture](architecture.md)
