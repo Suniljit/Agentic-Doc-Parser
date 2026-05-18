@@ -2,7 +2,7 @@
 
 | # | Ticket | Type | Blocked by | Status |
 |---|--------|------|------------|--------|
-| 01 | [Project Scaffolding](01-project-scaffolding.md) | AFK | — | `todo` |
+| 01 | [Project Scaffolding](01-project-scaffolding.md) | AFK | — | `done` |
 | 02 | [Docling PDF Parser](02-docling-pdf-parser.md) | AFK | #01 | `todo` |
 | 03 | [Part 1: Structured Extraction](03-part1-structured-extraction.md) | AFK | #02 | `todo` |
 | 04 | [FastMCP Datetime Server](04-fastmcp-datetime-server.md) | AFK | #01 | `todo` |

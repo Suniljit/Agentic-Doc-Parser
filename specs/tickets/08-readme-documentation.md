@@ -22,9 +22,9 @@ A `README.md` at the repo root that a reviewer can follow from clone to running 
    - Copy `.env.example` to `.env` and fill in `OPENAI_API_KEY`
 3. **Running each part**
    ```bash
-   uv run python src/part1_extraction.py   # Part 1
-   uv run python src/part2_tool_calling.py # Part 2
-   uv run python src/part3_agent.py        # Part 3
+   uv run src/part1_extraction.py   # Part 1
+   uv run src/part2_tool_calling.py # Part 2
+   uv run src/part3_agent.py        # Part 3
    ```
 4. **System design** — architecture diagram (copy from feature brief), explanation of data flow
 5. **Library & dependency justification** — for each key library, one sentence on why it was chosen over alternatives:

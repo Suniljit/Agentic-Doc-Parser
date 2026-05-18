@@ -43,7 +43,7 @@ from mcp.client.stdio import stdio_client
 
 async def call_mcp_tool(tool_name: str, arguments: dict) -> str:
     server_params = StdioServerParameters(
-        command="python", args=["src/mcp/datetime_server.py"]
+        command="uv", args=["run", "mcp/datetime_server.py"]
     )
     async with stdio_client(server_params) as (read, write):
         async with ClientSession(read, write) as session:
@@ -83,7 +83,7 @@ With the two normalised dates in hand, make a second GPT-4o call:
 Log the final JSON at INFO level and print it to stdout.
 
 ## Acceptance criteria
-- [ ] Script runs end-to-end: `uv run python src/part2_tool_calling.py`
+- [ ] Script runs end-to-end: `uv run src/part2_tool_calling.py`
 - [ ] GPT-4o issues at least one `tool_calls` response during execution
 - [ ] MCP server is spawned as a subprocess (not called as a Python function)
 - [ ] Output contains exactly two date objects with `original_text`, `normalized_date`, `status` fields

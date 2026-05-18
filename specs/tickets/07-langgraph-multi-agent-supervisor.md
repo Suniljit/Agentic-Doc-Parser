@@ -79,7 +79,7 @@ Run the graph on all three queries and print full results:
 For each query, log: routing decision, which agents were invoked, final answer.
 
 ## Acceptance criteria
-- [ ] Script runs end-to-end: `uv run python src/part3_agent.py`
+- [ ] Script runs end-to-end: `uv run src/part3_agent.py`
 - [ ] Supervisor correctly routes query 1 to both agents, query 2 to revenue only, query 3 to expenditure only
 - [ ] Each agent calls `search_document` at least once per invocation
 - [ ] Final answer for query 1 addresses both revenue streams and the Future Energy Fund
