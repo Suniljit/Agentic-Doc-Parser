@@ -1,0 +1,24 @@
+[project]
+name = "agentic-doc-parser"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "docling",
+    "openai",
+    "pydantic",
+    "loguru",
+    "python-dotenv",
+    "python-dateutil",
+    "chromadb",
+    "langchain",
+    "langchain-openai",
+    "langgraph",
+    "mcp[cli]",
+    "fastmcp",
+]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
