@@ -37,4 +37,4 @@ End-to-end foundation that lets any part script run with `uv run src/partN_*.py`
 _None — can start immediately._
 
 ## Status
-`todo`
+`done`
