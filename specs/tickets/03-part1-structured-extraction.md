@@ -36,7 +36,7 @@ class ExtractionResult(BaseModel):
 - Prompt must not ask GPT-4o to explain; output JSON only
 
 ## Acceptance criteria
-- [ ] Script runs end-to-end: `uv run python src/part1_extraction.py`
+- [ ] Script runs end-to-end: `uv run src/part1_extraction.py`
 - [ ] Output is a valid `ExtractionResult` with all five fields populated
 - [ ] All numeric fields are `float`, not string
 - [ ] `operating_revenue_taxes` is a non-empty list of strings

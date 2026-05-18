@@ -7,7 +7,7 @@ Set up the full project structure, dependency manifest, environment config, and 
 `feat/project-scaffolding`
 
 ## What to build
-End-to-end foundation that lets any part script run with `uv run python src/partN_*.py`.
+End-to-end foundation that lets any part script run with `uv run src/partN_*.py`.
 
 **Layers touched:** `pyproject.toml · src/utils/ · .env.example · .gitignore`
 
@@ -19,7 +19,7 @@ End-to-end foundation that lets any part script run with `uv run python src/part
 
 ## Acceptance criteria
 - [ ] `uv sync` completes without error
-- [ ] `uv run python -c "from src.utils.llm import get_client; print(get_client())"` succeeds
+- [ ] `uv run src/utils/llm.py` exits 0 and emits an INFO log line
 - [ ] loguru outputs a structured log line at INFO level on import
 - [ ] `.env` is in `.gitignore` and not tracked by git
 - [ ] `.env.example` documents every required environment variable
