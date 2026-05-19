@@ -83,19 +83,20 @@ With the two normalised dates in hand, make a second GPT-4o call:
 Log the final JSON at INFO level and print it to stdout.
 
 ## Acceptance criteria
-- [ ] Script runs end-to-end: `uv run src/part2_tool_calling.py`
-- [ ] GPT-4o issues at least one `tool_calls` response during execution
-- [ ] MCP server is spawned as a subprocess (not called as a Python function)
-- [ ] Output contains exactly two date objects with `original_text`, `normalized_date`, `status` fields
-- [ ] Both `normalized_date` values are valid ISO 8601 strings (`YYYY-MM-DD`)
-- [ ] Both `status` values are one of `Expired`, `Upcoming`, `Ongoing`
-- [ ] MCP round-trip duration logged at DEBUG level
-- [ ] `max_completion_tokens` set on both GPT-4o calls
-- [ ] No `print` statements except final JSON output; all logging via loguru
+- [x] Script runs end-to-end: `uv run src/part2_tool_calling.py`
+- [x] GPT-4o issues at least one `tool_calls` response during execution
+- [x] MCP server is spawned as a subprocess (not called as a Python function)
+- [x] Output contains exactly two date objects with `original_text`, `normalized_date`, `status` fields
+- [x] Both `normalized_date` values are valid ISO 8601 strings (`YYYY-MM-DD`)
+- [x] Both `status` values are one of `Expired`, `Upcoming`, `Ongoing`
+- [x] MCP round-trip duration logged at DEBUG level
+- [x] `max_completion_tokens` set on both GPT-4o calls
+- [x] No `print` statements except final JSON output; all logging via loguru
 
 ## Implementation notes
 - The script must be `async` (due to MCP client SDK); use `asyncio.run(main())` as entry point
-- Pages 1 and 36 must be sliced from the Docling markdown (reuse `parse_pdf()`)
+- Pages 1 and 36 must be sliced from the Docling markdown (reuse `parse_pages()`)
+- Page 1's "Distributed on Budget Day" footer text is not captured by Docling's layout analyser; `parser.py` applies a pypdfium2 supplement to recover it
 - The estate duty date on page 36 may be part of a sentence (e.g. "abolished with effect from...") — the extraction prompt should handle both inline and standalone date formats
 - If GPT-4o does not call `normalize_date` for a date it found, log a WARNING
 
@@ -108,4 +109,4 @@ Log the final JSON at INFO level and print it to stdout.
 - #04 — FastMCP Datetime Server
 
 ## Status
-`todo`
+`done`
