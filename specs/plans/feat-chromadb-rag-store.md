@@ -54,7 +54,7 @@ Chroma(collection="fy2024", persist_dir="data/cache/chroma/")
 | File | What changes |
 |---|---|
 | `src/utils/rag.py` | New — `build_store()` and `get_retriever_tool()` |
-| `pyproject.toml` | Add `langchain-chroma` |
+| `pyproject.toml` | Add `langchain-chroma` (`langchain-text-splitters` not needed — H1 split implemented with regex) |
 | `.gitignore` | Add `data/cache/chroma/` |
 | `docs/adr/ADR-006-chunking-strategy.md` | New ADR justifying H1-only split |
 | `INDEX.md` | Add ADR-006 row |

@@ -55,7 +55,10 @@ On the very first run, Docling downloads its layout models and parses the PDF, t
 ```
 data/cache/
 ├── fy2024_analysis_of_revenue_and_expenditure.json   # DoclingDocument + chart descriptions (~5–8 MB)
-└── fy2024_analysis_of_revenue_and_expenditure.md     # full markdown with page markers + pypdfium2 supplement (~130 KB)
+├── fy2024_analysis_of_revenue_and_expenditure.md     # full markdown, no page markers (~130 KB)
+└── chroma/                                           # ChromaDB vector index (Part 3 only)
+    ├── chroma.sqlite3                                #   metadata + collection index
+    └── <uuid>/data_level0.bin                        #   HNSW vector index
 ```
 
 The cache directory is gitignored and created automatically.
@@ -64,21 +67,120 @@ The cache directory is gitignored and created automatically.
 
 ## Cache Management
 
-### Force a full re-parse (also re-runs GPT-4o chart description)
+### Docling cache
+
+#### Force a full re-parse (also re-runs GPT-4o chart description)
 ```bash
 rm -rf data/cache/
 uv run src/part1_extraction.py   # triggers re-parse on next run
 ```
 
-### Regenerate markdown only (keeps JSON and chart descriptions — no GPT-4o calls)
+#### Regenerate markdown only (keeps JSON and chart descriptions — no GPT-4o calls)
 ```bash
 rm data/cache/*.md
 ```
 
-### Inspect what Docling extracted
+#### Inspect what Docling extracted
 ```bash
-cat data/cache/fy2024_analysis_of_revenue_and_expenditure.md | less
+less data/cache/fy2024_analysis_of_revenue_and_expenditure.md
 ```
+
+---
+
+## ChromaDB Store Management
+
+The vector store is built lazily on the first run of Part 3 and persisted to `data/cache/chroma/`. `build_store()` checks for a non-empty `chroma/` directory at startup — if it exists, the store is loaded directly with no API calls.
+
+### Check whether the store exists
+```bash
+ls data/cache/chroma/
+```
+If the directory is missing or empty, the next Part 3 run will build it from scratch.
+
+### Build the store manually (without running the full Part 3 agent)
+```bash
+uv run python -c "
+from pathlib import Path
+from src.utils.rag import build_store
+from src.utils.parser import parse_pdf
+
+md = parse_pdf(Path('data/fy2024_analysis_of_revenue_and_expenditure.pdf'), Path('data/cache'))
+build_store(md, Path('data/cache/chroma'))
+"
+```
+This embeds 61 chunks via the OpenAI embeddings API (~2s, ~$0.001) and writes the index to disk.
+
+### Rebuild the store from scratch (re-embeds everything)
+
+Use this after changing chunking logic in `_chunk_section` or switching embedding models.
+
+```bash
+rm -rf data/cache/chroma/
+uv run src/part3_agent.py        # rebuilds automatically on next run
+```
+
+Or rebuild manually without running the agent:
+```bash
+rm -rf data/cache/chroma/
+uv run python -c "
+from pathlib import Path
+from src.utils.rag import build_store
+from src.utils.parser import parse_pdf
+
+md = parse_pdf(Path('data/fy2024_analysis_of_revenue_and_expenditure.pdf'), Path('data/cache'))
+build_store(md, Path('data/cache/chroma'))
+"
+```
+
+### Delete only the vector store (keep Docling caches)
+```bash
+rm -rf data/cache/chroma/
+```
+The `.json` and `.md` Docling caches are untouched. The next Part 3 run re-embeds from the cached markdown — no PDF re-parse, no GPT-4o chart calls.
+
+### Smoke-test the store (run a query directly)
+```bash
+uv run python -c "
+from pathlib import Path
+from src.utils.rag import build_store, get_retriever_tool
+from src.utils.parser import parse_pdf
+
+md = parse_pdf(Path('data/fy2024_analysis_of_revenue_and_expenditure.pdf'), Path('data/cache'))
+store = build_store(md, Path('data/cache/chroma'))
+search = get_retriever_tool(store)
+
+print(search.invoke({'query': 'Corporate Income Tax'}))
+"
+```
+
+### Inspect the store contents (chunk count, collection name)
+```bash
+uv run python -c "
+from langchain_chroma import Chroma
+from langchain_openai import OpenAIEmbeddings
+from dotenv import load_dotenv
+load_dotenv()
+
+store = Chroma(
+    collection_name='fy2024',
+    embedding_function=OpenAIEmbeddings(model='text-embedding-3-small'),
+    persist_directory='data/cache/chroma',
+)
+print('Chunks in store:', store._collection.count())
+"
+```
+
+---
+
+### When to rebuild vs. reload
+
+| Scenario | Action |
+|----------|--------|
+| Normal Part 3 run | Nothing — store loads automatically if `chroma/` exists |
+| Changed `_chunk_section` or separator logic | `rm -rf data/cache/chroma/` then re-run |
+| Switched embedding model | `rm -rf data/cache/chroma/` then re-run |
+| Docling markdown regenerated (`.md` deleted) | `rm -rf data/cache/chroma/` then re-run — chunks will differ |
+| Markdown unchanged, just re-querying | No action — existing store is reused |
 
 ---
 
@@ -113,8 +215,11 @@ The FastMCP datetime server is spawned as a subprocess automatically. If it cras
   uv run mcp/datetime_server.py
   ```
 
-### ChromaDB collection empty (Part 3)
-Part 3 builds the RAG store at startup from the Docling markdown. If the collection is empty, check that `data/cache/` exists and contains the `.md` file. If not, run Part 1 first to trigger the parse.
+### ChromaDB store missing or empty (Part 3)
+Part 3 calls `build_store()` at startup, which creates `data/cache/chroma/` automatically. If it fails:
+- Check that `data/cache/fy2024_analysis_of_revenue_and_expenditure.md` exists (if not, run Part 1 first to trigger the Docling parse)
+- Check that `OPENAI_API_KEY` is set — `build_store()` calls the embeddings API on first run
+- If `data/cache/chroma/` exists but appears corrupt, delete it and re-run: `rm -rf data/cache/chroma/`
 
 ---
 
