@@ -35,11 +35,11 @@ echo '{"jsonrpc":"2.0","method":"tools/call","params":{"name":"normalize_date","
 ```
 
 ## Acceptance criteria
-- [ ] Server starts without error: `uv run mcp/datetime_server.py`
-- [ ] `normalize_date("16 February 2024")` returns `"2024-02-16"`
-- [ ] `normalize_date("February 2024")` returns a best-effort date or a clear ERROR string (not a crash)
-- [ ] `normalize_date("not a date at all")` returns an ERROR string without raising an exception
-- [ ] Server is listed in MCP tool discovery (`tools/list` response includes `normalize_date`)
+- [x] Server starts without error: `uv run mcp/datetime_server.py`
+- [x] `normalize_date("16 February 2024")` returns `"2024-02-16"`
+- [x] `normalize_date("February 2024")` returns a best-effort date or a clear ERROR string (not a crash)
+- [x] `normalize_date("not a date at all")` returns an ERROR string without raising an exception
+- [x] Server is listed in MCP tool discovery (`tools/list` response includes `normalize_date`)
 
 ## Implementation notes
 - `mcp/__init__.py` needed to make it a package
@@ -53,4 +53,4 @@ echo '{"jsonrpc":"2.0","method":"tools/call","params":{"name":"normalize_date","
 - #01 — Project Scaffolding
 
 ## Status
-`todo`
+`done`
