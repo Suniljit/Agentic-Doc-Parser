@@ -113,7 +113,7 @@ async def classify_dates(client, date_pairs: list[dict]) -> list[dict]:
 
 async def main() -> None:
     client = get_client()
-    context = parse_pages(PDF_PATH, [2, 36], CACHE_DIR)
+    context = parse_pages(PDF_PATH, [1, 36], CACHE_DIR)
 
     logger.info("Extracting dates via GPT-4o tool calling")
     date_pairs = await extract_dates(client, context)
