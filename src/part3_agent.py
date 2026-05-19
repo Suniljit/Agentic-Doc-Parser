@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Literal, TypedDict
@@ -14,6 +15,7 @@ from langchain_openai import ChatOpenAI
 from langgraph.graph import END, START, StateGraph
 from loguru import logger
 
+from utils.logging_config import setup_file_logging
 from utils.parser import parse_pdf
 from utils.rag import build_store, get_retriever_tool
 
@@ -44,8 +46,8 @@ class AgentState(TypedDict):
     next: Literal["revenue", "expenditure", "both", "reject"]
 
 
-def _count_chunks(context: str) -> int:
-    return len([c for c in context.split("\n\n") if c.startswith("[")])
+def _split_chunks(context: str) -> list[str]:
+    return re.split(r"\n\n(?=\[)", context)
 
 
 def build_graph(search_document):
@@ -91,7 +93,10 @@ def build_graph(search_document):
         sub_query = rewrite.content.strip()
         logger.debug("Revenue agent sub-query: {}", sub_query)
         context = search_document.invoke(sub_query)
-        logger.debug("Revenue agent retrieved {} chunk(s)", _count_chunks(context))
+        chunks = _split_chunks(context)
+        logger.debug("Revenue agent retrieved {} chunk(s)", len(chunks))
+        for i, chunk in enumerate(chunks, 1):
+            logger.debug("Revenue chunk {}/{}:\n{}", i, len(chunks), chunk)
         response = agent_llm.invoke(
             [
                 SystemMessage(content=_PROMPTS["part3"]["revenue_agent"]),
@@ -120,7 +125,10 @@ def build_graph(search_document):
         sub_query = rewrite.content.strip()
         logger.debug("Expenditure agent sub-query: {}", sub_query)
         context = search_document.invoke(sub_query)
-        logger.debug("Expenditure agent retrieved {} chunk(s)", _count_chunks(context))
+        chunks = _split_chunks(context)
+        logger.debug("Expenditure agent retrieved {} chunk(s)", len(chunks))
+        for i, chunk in enumerate(chunks, 1):
+            logger.debug("Expenditure chunk {}/{}:\n{}", i, len(chunks), chunk)
         response = agent_llm.invoke(
             [
                 SystemMessage(content=_PROMPTS["part3"]["expenditure_agent"]),
@@ -199,6 +207,7 @@ def run_query(compiled_graph, query: str) -> str:
 
 
 def main() -> None:
+    setup_file_logging("part3")
     markdown = parse_pdf(PDF_PATH, CACHE_DIR)
     vectorstore = build_store(markdown, CHROMA_DIR)
     search_document = get_retriever_tool(vectorstore)
