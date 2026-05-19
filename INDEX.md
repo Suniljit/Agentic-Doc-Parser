@@ -8,6 +8,7 @@
 | [Feature Brief](specs/feature-brief.md) | Full design spec — goals, requirements, design decisions |
 | [Docling Parser](docs/docling.md) | Deep-dive on parser.py: caching, GPT-4o chart description, prompt management |
 | [MCP Datetime Server](docs/mcp.md) | Deep-dive on mcp/datetime_server.py: normalize_date tool, stdio transport, standalone usage |
+| [RAG Store](docs/rag.md) | Deep-dive on rag.py: chunking strategy, table-aware paragraph grouping, ChromaDB embedding, search_document tool |
 
 ## Architecture Decision Records (ADRs)
 | ADR | Title | Status | Date |

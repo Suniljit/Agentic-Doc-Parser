@@ -76,4 +76,4 @@ def search_document(query: str) -> str:
 - #02 — Docling PDF Parser
 
 ## Status
-`todo`
+`done`
