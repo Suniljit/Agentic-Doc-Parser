@@ -10,6 +10,8 @@ dependencies = [
     "python-dotenv",
     "python-dateutil",
     "chromadb",
+    "langchain-chroma",
+    "langchain-text-splitters",
     "langchain",
     "langchain-openai",
     "langgraph",
