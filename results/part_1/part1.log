@@ -1,0 +1,143 @@
+2026-05-19 20:05:11.594 | DEBUG    | utils.logging_config:setup_file_logging:19 - File logging active: logs/<timestamp>_part1.log
+2026-05-19 20:05:11.594 | DEBUG    | utils.parser:_get_document:70 - DoclingDocument cache hit (disk): fy2024_analysis_of_revenue_and_expenditure.json
+2026-05-19 20:05:11.645 | DEBUG    | __main__:extract:34 - Extraction context (15266 chars):
+--- Page 5 ---
+
+# 01 Update on Financial Year 2023
+
+# 1.1 Expected Overall Fiscal Position for FY2023
+
+The basic deficit is revised to $5.4 billion (0.8% of GDP). After factoring in Topups to Endowment and Trust Funds of $24.3 billion, Net Investment Returns Contribution  (NIRC)  of  $22.9  billion,  Capitalisation  of  Nationally  Significant Infrastructure of $3.5 billion, and Significant Infrastructure Government Loan Act (SINGA) Interest Costs and Loan Expenses of $0.2 billion, the Overall Fiscal Position for Revised FY2023 is a deficit of $3.6 billion (0.5% of GDP). This is larger than the $0.4 billion deficit estimated at Budget 2023. This is due to higher Total Expenditure to meet priority areas such as catching up of projects deferred due to COVID-19; funding for public healthcare institutions; and a top-up to the Majulah Package Fund to boost the retirement and healthcare  adequacy of Singaporeans, as announced by Prime Minister Lee Hsien Loong at the National Day Rally 2023; partially offset by higher-than-expected Operating Revenue, mainly due to stronger-than-expected economic growth.
+
+The Revised FY2023 fiscal position is shown in Table 1.1.
+
+# 1.2 Operating Revenue
+
+Revised FY2023 Operating Revenue is $104.3 billion, which is $7.6 billion (7.9%) higher than the Estimated FY2023 figure. This increase is mainly due to higher collections from Corporate Income Tax, Other Taxes, Vehicle Quota Premiums, Personal Income Tax, Assets Taxes, and Betting Taxes, partially offset by lower collections from the Goods and Services Tax.
+
+Corporate  Income  Tax  collections  are  revised  to  $28.4  billion,  which  is $4.1 billion (17.0%) higher than the Estimated FY2023 figure due to strongerthan-expected economic growth in 2022. Collections from Other Taxes, which include  the  Foreign  Worker  Levy,  Water  Conservation  Tax,  Land  Betterment Charge, and Annual Tonnage Tax, are revised to $8.8 billion, which is $2.1 billion (32.3%) higher than the Estimated FY2023 figure. This is mainly due to higher Land Betterment Charge collections from unforeseen redevelopment projects. Vehicle  Quota  Premiums  collections  are  revised  to  $4.7  billion,  which  is $0.8  billion  (20.1%)  higher  than  the  Estimated  FY2023  figure  due  to  the Government bringing forward COE quota from future years. Personal Income Tax collections are revised to $17.5 billion, which is $0.7 billion (4.1%) higher than the Estimated FY2023 figure due to stronger-than-expected nominal wage growth in 2022. Assets Taxes collections are revised to $5.9 billion, which is $0.4  billion  (6.7%)  higher  than  the  Estimated  FY2023  figure  due  to  upward adjustments to Annual Values for residential properties. Betting Taxes collections are revised to $3.2 billion, which is $0.3 billion (10.8%) higher than the  Estimated  FY2023  figure  due  to  stronger-than-expected  collections  for Casino Taxes.
+
+--- Page 6 ---
+
+Goods  and  Services  Tax  collections  are  revised  to  $16.4  billion,  which  is $1.0  billion  (5.8%)  lower  than  the  Estimated  FY2023  figure  due  to  weaker imports.
+
+The breakdown of Operating Revenue in FY2023 by its components is shown in Chart 1.1.
+
+# 1.3 Total Expenditure
+
+Revised FY2023 Total Expenditure is $106.9 billion, which is $2.7 billion (2.6%) higher  than  the  Estimated  FY2023  figure.  The  breakdown  of  Government spending by sector is shown in Chart 1.2.
+
+Operating Expenditure is revised to $85.4 billion, which is $1.7 billion (2.1%) higher  than  the  Estimated  FY2023  figure.  The  higher  expenditure  is  mainly driven by (i) MINDEF due to catching up of projects deferred or disrupted due to COVID-19, acceleration of the SAF's digitalisation and build-up of non-kinetic capabilities, as well as heightened inflationary pressures; and (ii) MOH due to higher  funding  to  public  healthcare  institutions  and  implementation  of Healthier  SG.  These  increases  in  expenditure  are  partly  offset  by  lower expenditure by (i) MOM due to lower utilisation for the Jobs Growth Incentive; (ii) MOE due to lower expenditure on manpower; and (iii) MHA due to lower manpower  costs,  expected  delays  in  IT  projects,  and  savings  in  systems maintenance.
+
+Development Expenditure is revised to $21.5 billion, which is $1.0 billion (4.9%) higher  than  the  Estimated  FY2023  figure.  The  higher  expenditure  is  mainly driven by (i) MOT mainly due to the development of the domestic rail network; (ii) MTI due to higher requirements for EDB's Economic Development Assistance Scheme and spending on Research, Innovation and Enterprise; partially offset by small decreases in expenditure across several agencies due to project delays.
+
+--- Page 8 ---
+
+# Fiscal Position in FY2022 and FY2023
+
+| BLANK BLANK                                                      | Actual   | Estimated   | Revised   | Revised FY2023 Compared to   | Revised FY2023 Compared to   |
+|------------------------------------------------------------------|----------|-------------|-----------|------------------------------|------------------------------|
+| BLANK BLANK                                                      | FY2022   | FY2023      | FY2023    | Actual FY2022                | Estimated FY2023             |
+| BLANK                                                            | $billion | $billion    | $billion  | %change                      | %change                      |
+| OPERATING REVENUE                                                | 91.01    | 96.70       | 104.30    | 14.6                         | 7.9                          |
+| Corporate Income Tax                                             | 23.07    | 24.26       | 28.38     | 23.0                         | 17.0                         |
+| Personal Income Tax                                              | 15.52    | 16.84       | 17.53     | 12.9                         | 4.1                          |
+| Withholding Tax                                                  | 2.11     | 2.21        | 2.19      | 3.8                          | (1.2)                        |
+| Statutory Boards' Contributions                                  | 1.45     | 0.57        | 0.75      | (48.4)                       | 32.1                         |
+| Assets Taxes                                                     | 5.10     | 5.55        | 5.92      | 16.1                         | 6.7                          |
+| Customs, Excise and Carbon Taxes                                 | 3.46     | 3.73        | 3.40      | (1.8)                        | (8.8)                        |
+| Goods and Services Tax                                           | 14.09    | 17.38       | 16.36     | 16.1                         | (5.8)                        |
+| Motor Vehicle Taxes                                              | 2.16     | 2.54        | 2.60      | 20.0                         | 2.3                          |
+| Vehicle Quota Premiums                                           | 3.76     | 3.88        | 4.66      | 23.9                         | 20.1                         |
+| Betting Taxes                                                    | 2.77     | 2.84        | 3.15      | 13.9                         | 10.8                         |
+| Stamp Duty                                                       | 5.95     | 5.75        | 5.92      | (0.6)                        | 3.0                          |
+| Other Taxes 1                                                    | 7.02     | 6.63        | 8.78      | 25.0                         | 32.3                         |
+| Fees and Charges (excluding Vehicle Quota Premiums)              | 3.95     | 3.95        | 4.07      | 3.0                          | 3.0                          |
+| Others                                                           | 0.60     | 0.58        | 0.61      | 2.2                          | 5.5                          |
+| Less:                                                            |          |             |           | -                            | -                            |
+| TOTAL EXPENDITURE                                                | 104.86   | 104.15      | 106.89    | 1.9                          | 2.6                          |
+| Operating Expenditure                                            | 84.44    | 83.62       | 85.36     | 1.1                          | 2.1                          |
+| Development Expenditure                                          | 20.42    | 20.52       | 21.52     | 5.4                          | 4.9                          |
+| PRIMARY SURPLUS / DEFICIT                                        | (13.84)  | (7.45)      | (2.59)    |                              |                              |
+| Less:                                                            |          |             |           |                              |                              |
+| SPECIAL TRANSFERS 2                                              | 8.94     | 19.58       | 27.17     | 203.9                        | 38.7                         |
+| Special Transfers Excluding Top-ups to Endowment and Trust Funds | 2.69     | 2.76        | 2.85      |                              |                              |
+| COL Special Payment                                              | 1.02     | 1.33        | 1.55      |                              |                              |
+| CDC Vouchers                                                     | 0.39     | 0.60        | 0.64      |                              |                              |
+| Other Transfers 3                                                | 1.28     | 0.84        | 0.66      |                              |                              |
+| BASIC SURPLUS / DEFICIT                                          | (16.53)  | (10.21)     | (5.44)    |                              |                              |
+| Top-ups to Endowment and Trust Funds                             | 6.25     | 16.82       | 24.32     |                              |                              |
+| Majulah Package Fund                                             | -        | -           | 7.50      |                              |                              |
+| National Productivity Fund                                       | -        | 4.00        | 4.00      |                              |                              |
+| GST Voucher Fund                                                 | 2.40     | 2.40        | 2.40      |                              |                              |
+| Progressive Wage Credit Scheme Fund                              | 2.80     | 2.40        | 2.40      |                              |                              |
+| Top-ups to Endowment Funds 4                                     | -        | 2.30        | 2.30      |                              |                              |
+| Other Funds 5                                                    | 1.05     | 5.72        | 5.72      |                              |                              |
+| Add:                                                             | 22,376,  | 23,480,570, | 22,915, 0 |                              |                              |
+| NET INVESTMENT RETURNS CONTRIBUTION                              | 22.38    | 23.48       | 22.92     | 2.4                          | (2.4)                        |
+| OVERALL BUDGET SURPLUS / DEFICIT                                 | (0.41)   | (3.55)      | (6.84)    |                              |                              |
+| Add:                                                             |          |             |           |                              |                              |
+| CAPITALISATION OF NATIONALLY SIGNIFICANT INFRASTRUCTURE          | 2.21     | 3.53        | 3.49      | 58.1                         | (0.9)                        |
+| Less:                                                            |          |             |           |                              |                              |
+| DEPRECIATION OF NATIONALLY SIGNIFICANT INFRASTRUCTURE            | -        | -           | -         | -                            | -                            |
+| SINGA INTEREST COSTS AND LOAN EXPENSES 6                         | 0.09     | 0.33        | 0.23      | 152.4                        | (32.0)                       |
+| OVERALL FISCAL POSITION                                          | 1.72     | (0.35)      | (3.57)    |                              |                              |
+
+Note: Figures may not add up due to rounding. Negative figures are shown in parentheses.
+
+1 Other Taxes include the Foreign Worker Levy, Water Conservation Tax, Land Betterment Charge and Annual Tonnage Tax.
+
+2 Special Transfers including Top-ups to Endowment and Trust Funds.
+
+3 Includes GST Voucher Special Payment, Top-ups to Edusave, Post-Secondary Education and Child Development Accounts, CPF MediSave Top-ups, CPF Transition Offset, S&CC Rebates, Jobs Support Scheme, Top-ups to self-help groups, Rental Support Scheme, Workfare Special Bonus, Passion Card Top-ups, Wage Credit Scheme, Productivity and Innovation Credit,  Household  Utilities  Credit,  Cash  Grant  to  Mitigate  Rental  Costs,  SelfEmployed Persons Income Relief Scheme, Cash Rebate for School Buses, Grocery Vouchers.
+
+4 Consists of Medical Endowment Fund, ElderCare Fund and Community Care Endowment Fund.
+
+5 Consists of Changi Airport Development Fund, Trust Fund for the Employment Credit Schemes, National Research Fund, Community Silver Trust Fund, Cultural Matching Fund and Public Transport Fund.
+
+6 SINGA Interest Costs and Loan Expenses include the annual effective interest costs (which is computed based on the yield to maturity multiplied by the face value of the bond) and other ancillary loan expenses incurred in connection with the SINGA. It excludes principal repayment and transfer of loan discount to Development Fund. It is different from the Debt Servicing and Related Costs presented in the Expenditure Estimates and Annex to Expenditure Estimates for Head Y.
+
+--- Page 20 ---
+
+# Top-ups to Endowment and Trust Funds in FY2024
+
+Table 2.4
+
+|                                     |   Estimated FY2024 ($ million) |
+|-------------------------------------|--------------------------------|
+| Goods and Services Tax Voucher Fund |                          6,000 |
+| Future Energy Fund                  |                          5,000 |
+| Edusave Endowment Fund              |                          2,000 |
+| Financial Sector Development Fund   |                          2,000 |
+| National Productivity Fund          |                          2,000 |
+| National Research Fund              |                          1,800 |
+| Progressive Wage Credit Scheme Fund |                          1,000 |
+| Skills Development Fund             |                            500 |
+| Public Transport Fund               |                             50 |
+| Legal Aid Fund                      |                              2 |
+| Total                               |                         20,352 |
+2026-05-19 20:05:14.222 | INFO     | __main__:extract:49 - corporate_income_tax_2024: 28.4
+2026-05-19 20:05:14.222 | INFO     | __main__:extract:50 - corp_tax_yoy_pct_2024: 17.0
+2026-05-19 20:05:14.223 | INFO     | __main__:extract:51 - total_top_ups_2024: 20.352
+2026-05-19 20:05:14.223 | INFO     | __main__:extract:52 - operating_revenue_taxes: ['Corporate Income Tax', 'Other Taxes', 'Foreign Worker Levy', 'Water Conservation Tax', 'Land Betterment Charge', 'Annual Tonnage Tax', 'Vehicle Quota Premiums', 'Personal Income Tax', 'Assets Taxes', 'Betting Taxes', 'Goods and Services Tax']
+2026-05-19 20:05:14.223 | INFO     | __main__:extract:53 - latest_actual_fiscal_position_bn: 1.72
+2026-05-19 20:05:14.223 | INFO     | __main__:<module>:61 - Extraction result:
+{
+  "corporate_income_tax_2024": 28.4,
+  "corp_tax_yoy_pct_2024": 17.0,
+  "total_top_ups_2024": 20.352,
+  "operating_revenue_taxes": [
+    "Corporate Income Tax",
+    "Other Taxes",
+    "Foreign Worker Levy",
+    "Water Conservation Tax",
+    "Land Betterment Charge",
+    "Annual Tonnage Tax",
+    "Vehicle Quota Premiums",
+    "Personal Income Tax",
+    "Assets Taxes",
+    "Betting Taxes",
+    "Goods and Services Tax"
+  ],
+  "latest_actual_fiscal_position_bn": 1.72
+}

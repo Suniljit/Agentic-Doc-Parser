@@ -1,0 +1,141 @@
+2026-05-19 20:16:28.669 | DEBUG    | utils.logging_config:setup_file_logging:19 - File logging active: logs/<timestamp>_part3.log
+2026-05-19 20:16:28.669 | DEBUG    | utils.parser:parse_pdf:101 - Markdown cache hit: fy2024_analysis_of_revenue_and_expenditure.md
+2026-05-19 20:16:29.007 | INFO     | utils.rag:build_store:94 - ChromaDB store found at data/chroma — loading existing
+2026-05-19 20:16:29.672 | INFO     | __main__:run_query:207 - Running query: What are the key government revenue streams, and how will the Budget for the Future Energy Fund be supported?
+2026-05-19 20:16:31.019 | INFO     | __main__:supervisor_node:88 - Supervisor routed to: both
+2026-05-19 20:16:31.021 | INFO     | __main__:expenditure_node:137 - Expenditure agent sub-query: Budget for the Future Energy Fund FY2024
+2026-05-19 20:16:31.022 | INFO     | __main__:revenue_node:111 - Revenue agent sub-query: key government revenue streams FY2024
+2026-05-19 20:16:32.918 | DEBUG    | __main__:expenditure_node:140 - Expenditure agent retrieved 4 chunk(s)
+2026-05-19 20:16:32.918 | DEBUG    | __main__:expenditure_node:142 - Expenditure chunk 1/4:
+[Top-ups to Endowment and Trust Funds in FY2024]
+Table 2.4
+
+|                                     |   Estimated FY2024 ($ million) |
+|-------------------------------------|--------------------------------|
+| Goods and Services Tax Voucher Fund |                          6,000 |
+| Future Energy Fund                  |                          5,000 |
+| Edusave Endowment Fund              |                          2,000 |
+| Financial Sector Development Fund   |                          2,000 |
+| National Productivity Fund          |                          2,000 |
+| National Research Fund              |                          1,800 |
+| Progressive Wage Credit Scheme Fund |                          1,000 |
+| Skills Development Fund             |                            500 |
+| Public Transport Fund               |                             50 |
+| Legal Aid Fund                      |                              2 |
+| Total                               |                         20,352 |
+2026-05-19 20:16:32.918 | DEBUG    | __main__:expenditure_node:142 - Expenditure chunk 2/4:
+[EXPLANATORY NOTES]
+This document summarises and provides relevant highlights of the  FY2024  Revenue  and  Expenditure Estimates presented to Parliament on 16 February 2024.
+2026-05-19 20:16:32.918 | DEBUG    | __main__:expenditure_node:142 - Expenditure chunk 3/4:
+[1.6 Spending from Endowment and Trust Funds]
+Spending from Government Endowment and Trust Funds is projected to be $9.6 billion in FY2023 (Table 1.3).
+2026-05-19 20:16:32.918 | DEBUG    | __main__:expenditure_node:142 - Expenditure chunk 4/4:
+[Financial Year 2024]
+Distributed on Budget Day: 16 February 2024
+2026-05-19 20:16:32.928 | DEBUG    | __main__:revenue_node:114 - Revenue agent retrieved 4 chunk(s)
+2026-05-19 20:16:32.929 | DEBUG    | __main__:revenue_node:116 - Revenue chunk 1/4:
+[EXPLANATORY NOTES]
+This document summarises and provides relevant highlights of the  FY2024  Revenue  and  Expenditure Estimates presented to Parliament on 16 February 2024.
+2026-05-19 20:16:32.929 | DEBUG    | __main__:revenue_node:116 - Revenue chunk 2/4:
+[STATISTICAL ANNEX]
+Table 3.2a: Revenue Collections for FY2018 to FY2024 ($ million)
+
+|                                                      |   FY2018 |   FY2019 |   FY2020 |   FY2021 |   FY2022 |   FY2023 (Revised) |   FY2024 (Estimated) |
+|------------------------------------------------------|----------|----------|----------|----------|----------|--------------------|----------------------|
+| Operating Revenue                                    |   73,738 |   74,274 |   67,376 |   82,487 |   91,015 |            104,301 |              108,640 |
+| Corporate Income Tax                                 |   16,032 |   16,732 |   16,112 |   18,196 |   23,072 |             28,380 |               28,029 |
+| Personal Income Tax                                  |   11,706 |   12,368 |   12,748 |   14,223 |   15,524 |             17,525 |               18,075 |
+| Withholding Tax                                      |    1,590 |    1,637 |    1,618 |    1,859 |    2,108 |              2,187 |                2,307 |
+| Statutory Boards' Contributions                      |    1,490 |    1,798 |    2,519 |    2,855 |    1,451 |                748 |                  308 |
+| Assets Taxes                                         |    4,649 |    4,762 |    3,128 |    4,672 |    5,095 |              5,917 |                6,673 |
+| Customs, Excise and Carbon Taxes                     |    3,075 |    3,264 |    3,582 |    3,750 |    3,460 |              3,398 |                3,564 |
+| Goods and Services Tax                               |   11,137 |   11,164 |   10,346 |   12,628 |   14,093 |             16,363 |               19,394 |
+| Motor Vehicle Taxes                                  |    2,623 |    2,419 |    2,133 |    2,226 |    2,163 |              2,596 |                2,837 |
+| Vehicle Quota Premium                                |    3,616 |    2,865 |    2,297 |    3,218 |    3,763 |              4,664 |                4,725 |
+| Betting Taxes                                        |    2,664 |    2,620 |    1,722 |    2,313 |    2,766 |              3,151 |                3,257 |
+| Stamp Duty                                           |    4,607 |    4,199 |    3,896 |    6,762 |    5,950 |              5,917 |                5,731 |
+| Other Taxes 1                                        |    6,629 |    6,683 |    3,606 |    5,278 |    7,025 |              8,778 |                8,856 |
+| Fees and Charges (Excluding Vehicle Quota Premium) 2 |    3,490 |    3,409 |    3,181 |    3,610 |    3,946 |              4,067 |                4,247 |
+| Others                                               |      430 |      354 |      489 |      898 |      598 |                611 |                  637 |
+
+Table 3.2a: Revenue Collections for FY2018 to FY2024 ($ million)
+
+Note: Figures may not add up due to rounding.
+
+1 Other Taxes include the Foreign Worker Levy, Water Conservation Tax, Land Betterment Charge and Annual Tonnage Tax.
+
+2  Includes revenue from Licenses, Permits, Service Fees, Sales of Goods, Rental of Premises, Fines and Forfeitures, and Reimbursements.
+2026-05-19 20:16:32.929 | DEBUG    | __main__:revenue_node:116 - Revenue chunk 3/4:
+[STATISTICAL ANNEX]
+Table 3.2b: Revenue Collections for FY2018 to FY2024 (% of GDP) 1
+
+|                                                      | FY2018   | FY2019   | FY2020   | FY2021   | FY2022   | FY2023 (Revised)   | FY2024 (Estimated)   |
+|------------------------------------------------------|----------|----------|----------|----------|----------|--------------------|----------------------|
+| Operating Revenue                                    | 14.4%    | 14.5%    | 13.7%    | 13.5%    | 13.3%    | 15.2%              | 15.1%                |
+| Corporate Income Tax                                 | 3.1%     | 3.3%     | 3.3%     | 3.0%     | 3.4%     | 4.1%               | 3.9%                 |
+| Personal Income Tax                                  | 2.3%     | 2.4%     | 2.6%     | 2.3%     | 2.3%     | 2.6%               | 2.5%                 |
+| Withholding Tax                                      | 0.3%     | 0.3%     | 0.3%     | 0.3%     | 0.3%     | 0.3%               | 0.3%                 |
+| Statutory Boards' Contributions                      | 0.3%     | 0.4%     | 0.5%     | 0.5%     | 0.2%     | 0.1%               | 0.0%                 |
+| Assets Taxes                                         | 0.9%     | 0.9%     | 0.6%     | 0.8%     | 0.7%     | 0.9%               | 0.9%                 |
+| Customs, Excise and Carbon Taxes                     | 0.6%     | 0.6%     | 0.7%     | 0.6%     | 0.5%     | 0.5%               | 0.5%                 |
+| Goods and Services Tax                               | 2.2%     | 2.2%     | 2.1%     | 2.1%     | 2.1%     | 2.4%               | 2.7%                 |
+| Motor Vehicle Taxes                                  | 0.5%     | 0.5%     | 0.4%     | 0.4%     | 0.3%     | 0.4%               | 0.4%                 |
+| Vehicle Quota Premium                                | 0.7%     | 0.6%     | 0.5%     | 0.5%     | 0.6%     | 0.7%               | 0.7%                 |
+| Betting Taxes                                        | 0.5%     | 0.5%     | 0.3%     | 0.4%     | 0.4%     | 0.5%               | 0.5%                 |
+| Stamp Duty                                           | 0.9%     | 0.8%     | 0.8%     | 1.1%     | 0.9%     | 0.9%               | 0.8%                 |
+| Other Taxes 2                                        | 1.3%     | 1.3%     | 0.7%     | 0.9%     | 1.0%     | 1.3%               | 1.2%                 |
+| Fees and Charges (Excluding Vehicle Quota Premium) 3 | 0.7%     | 0.7%     | 0.6%     | 0.6%     | 0.6%     | 0.6%               | 0.6%                 |
+| Others                                               | 0.1%     | 0.1%     | 0.1%     | 0.1%     | 0.1%     | 0.1%               | 0.1%                 |
+
+Table 3.2b: Revenue Collections for FY2018 to FY2024 (% of GDP) 1
+
+Note: Figures may not add up due to rounding.
+
+1 Data may differ from previous years due to revisions to GDP estimates.
+
+2 Other Taxes include the Foreign Worker Levy, Water Conservation Tax, Land Betterment Charge and Annual Tonnage Tax.
+
+3 Includes revenue from Licenses, Permits, Service Fees, Sales of Goods, Rental of Premises, Fines and Forfeitures, and Reimbursements.
+2026-05-19 20:16:32.929 | DEBUG    | __main__:revenue_node:116 - Revenue chunk 4/4:
+[1.2 Operating Revenue]
+Revised FY2023 Operating Revenue is $104.3 billion, which is $7.6 billion (7.9%) higher than the Estimated FY2023 figure. This increase is mainly due to higher collections from Corporate Income Tax, Other Taxes, Vehicle Quota Premiums, Personal Income Tax, Assets Taxes, and Betting Taxes, partially offset by lower collections from the Goods and Services Tax.  
+Corporate  Income  Tax  collections  are  revised  to  $28.4  billion,  which  is $4.1 billion (17.0%) higher than the Estimated FY2023 figure due to strongerthan-expected economic growth in 2022. Collections from Other Taxes, which include  the  Foreign  Worker  Levy,  Water  Conservation  Tax,  Land  Betterment Charge, and Annual Tonnage Tax, are revised to $8.8 billion, which is $2.1 billion (32.3%) higher than the Estimated FY2023 figure. This is mainly due to higher Land Betterment Charge collections from unforeseen redevelopment projects. Vehicle  Quota  Premiums  collections  are  revised  to  $4.7  billion,  which  is $0.8  billion  (20.1%)  higher  than  the  Estimated  FY2023  figure  due  to  the Government bringing forward COE quota from future years. Personal Income Tax collections are revised to $17.5 billion, which is $0.7 billion (4.1%) higher than the Estimated FY2023 figure due to stronger-than-expected nominal wage growth in 2022. Assets Taxes collections are revised to $5.9 billion, which is $0.4  billion  (6.7%)  higher  than  the  Estimated  FY2023  figure  due  to  upward adjustments to Annual Values for residential properties. Betting Taxes collections are revised to $3.2 billion, which is $0.3 billion (10.8%) higher than the  Estimated  FY2023  figure  due  to  stronger-than-expected  collections  for Casino Taxes.  
+Goods  and  Services  Tax  collections  are  revised  to  $16.4  billion,  which  is $1.0  billion  (5.8%)  lower  than  the  Estimated  FY2023  figure  due  to  weaker imports.  
+The breakdown of Operating Revenue in FY2023 by its components is shown in Chart 1.1.
+2026-05-19 20:16:34.539 | INFO     | __main__:expenditure_node:158 - Expenditure agent answer: The budget allocation for the Future Energy Fund in FY2024 is estimated to be $5,000 million. The context does not provide specific details on how this budget will be supported or funded.
+2026-05-19 20:16:45.844 | INFO     | __main__:revenue_node:132 - Revenue agent answer: The key government revenue streams for FY2024 are:
+
+1. Operating Revenue: Estimated at $108,640 million.
+2. Corporate Income Tax: Estimated at $28,029 million.
+3. Personal Income Tax: Estimated at $18,075 million.
+4. Goods and Services Tax: Estimated at $19,394 million.
+5. Other Taxes: Estimated at $8,856 million.
+6. Assets Taxes: Estimated at $6,673 million.
+7. Vehicle Quota Premium: Estimated at $4,725 million.
+8. Fees and Charges (Excluding Vehicle Quota Premium): Estimated at $4,247 million.
+9. Betting Taxes: Estimated at $3,257 million.
+10. Customs, Excise and Carbon Taxes: Estimated at $3,564 million.
+11. Stamp Duty: Estimated at $5,731 million.
+12. Motor Vehicle Taxes: Estimated at $2,837 million.
+13. Withholding Tax: Estimated at $2,307 million.
+14. Statutory Boards' Contributions: Estimated at $308 million.
+15. Others: Estimated at $637 million.
+2026-05-19 20:16:48.092 | INFO     | __main__:synthesizer_node:186 - Final answer: The key government revenue streams for FY2024 are as follows:
+
+1. Operating Revenue: $108,640 million
+2. Corporate Income Tax: $28,029 million
+3. Personal Income Tax: $18,075 million
+4. Goods and Services Tax: $19,394 million
+5. Other Taxes: $8,856 million
+6. Assets Taxes: $6,673 million
+7. Vehicle Quota Premium: $4,725 million
+8. Fees and Charges (Excluding Vehicle Quota Premium): $4,247 million
+9. Betting Taxes: $3,257 million
+10. Customs, Excise and Carbon Taxes: $3,564 million
+11. Stamp Duty: $5,731 million
+12. Motor Vehicle Taxes: $2,837 million
+13. Withholding Tax: $2,307 million
+14. Statutory Boards' Contributions: $308 million
+15. Others: $637 million
+
+Regarding the budget for the Future Energy Fund, it is estimated to be $5,000 million for FY2024. However, the specific details on how this budget will be supported or funded are not provided in the available context.

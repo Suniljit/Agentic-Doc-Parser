@@ -1,0 +1,6 @@
+2026-05-19 20:26:43.496 | DEBUG    | utils.logging_config:setup_file_logging:19 - File logging active: logs/<timestamp>_part3.log
+2026-05-19 20:26:43.496 | DEBUG    | utils.parser:parse_pdf:101 - Markdown cache hit: fy2024_analysis_of_revenue_and_expenditure.md
+2026-05-19 20:26:43.782 | INFO     | utils.rag:build_store:94 - ChromaDB store found at data/chroma — loading existing
+2026-05-19 20:26:43.834 | INFO     | __main__:run_query:207 - Running query: How is the weather like in Singapore?
+2026-05-19 20:26:44.727 | INFO     | __main__:supervisor_node:88 - Supervisor routed to: reject
+2026-05-19 20:26:44.729 | WARNING  | __main__:reject_node:162 - Query rejected as off-topic: How is the weather like in Singapore?

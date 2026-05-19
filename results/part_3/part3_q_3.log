@@ -1,0 +1,59 @@
+2026-05-19 20:25:16.653 | DEBUG    | utils.logging_config:setup_file_logging:19 - File logging active: logs/<timestamp>_part3.log
+2026-05-19 20:25:16.653 | DEBUG    | utils.parser:parse_pdf:101 - Markdown cache hit: fy2024_analysis_of_revenue_and_expenditure.md
+2026-05-19 20:25:16.936 | INFO     | utils.rag:build_store:94 - ChromaDB store found at data/chroma — loading existing
+2026-05-19 20:25:16.987 | INFO     | __main__:run_query:207 - Running query: How much has been allocated to the Future Energy Fund and what does it cover?
+2026-05-19 20:25:18.180 | INFO     | __main__:supervisor_node:88 - Supervisor routed to: expenditure
+2026-05-19 20:25:18.182 | INFO     | __main__:expenditure_node:137 - Expenditure agent sub-query: Future Energy Fund allocation and coverage
+2026-05-19 20:25:18.852 | DEBUG    | __main__:expenditure_node:140 - Expenditure agent retrieved 4 chunk(s)
+2026-05-19 20:25:18.853 | DEBUG    | __main__:expenditure_node:142 - Expenditure chunk 1/4:
+[Top-ups to Endowment and Trust Funds in FY2024]
+Table 2.4
+
+|                                     |   Estimated FY2024 ($ million) |
+|-------------------------------------|--------------------------------|
+| Goods and Services Tax Voucher Fund |                          6,000 |
+| Future Energy Fund                  |                          5,000 |
+| Edusave Endowment Fund              |                          2,000 |
+| Financial Sector Development Fund   |                          2,000 |
+| National Productivity Fund          |                          2,000 |
+| National Research Fund              |                          1,800 |
+| Progressive Wage Credit Scheme Fund |                          1,000 |
+| Skills Development Fund             |                            500 |
+| Public Transport Fund               |                             50 |
+| Legal Aid Fund                      |                              2 |
+| Total                               |                         20,352 |
+2026-05-19 20:25:18.853 | DEBUG    | __main__:expenditure_node:142 - Expenditure chunk 2/4:
+[Spending from Endowment and Trust Funds]
+Table 1.3
+
+|                                              |   Revised FY2023 ($ million) |
+|----------------------------------------------|------------------------------|
+| Total Spending                               |                        9,635 |
+| Goods and Services Tax Voucher Fund          |                        3,758 |
+| Progressive Wage Credit Scheme Fund          |                        2,547 |
+| National Research Fund                       |                          804 |
+| Skills Development Fund                      |                          371 |
+| Pioneer Generation Fund                      |                          321 |
+| Trust Fund for the Employment Credit Schemes |                          295 |
+| Merdeka Generation Fund                      |                          242 |
+| Edusave Endowment Fund                       |                          184 |
+| Medical Endowment Fund                       |                          176 |
+| Community Silver Trust                       |                          154 |
+| Long-Term Care Support Fund                  |                          150 |
+| Lifelong Learning Endowment Fund             |                          144 |
+| ElderCare Fund                               |                          134 |
+| Others 1                                     |                          134 |
+| National Productivity Fund                   |                          133 |
+| Community Care Endowment Fund                |                           89 |
+
+Note: Figures may not add up due to rounding.
+
+1  Consists of funds with spending of less than $50 million: Bus Service Enhancement Fund, Community Capability Trust Fund, Cultural Matching Fund, National Youth Fund, Public Transport Fund, SG Eco Fund, and Singapore Universities Trust Fund.
+2026-05-19 20:25:18.853 | DEBUG    | __main__:expenditure_node:142 - Expenditure chunk 3/4:
+[1.6 Spending from Endowment and Trust Funds]
+Spending from Government Endowment and Trust Funds is projected to be $9.6 billion in FY2023 (Table 1.3).
+2026-05-19 20:25:18.853 | DEBUG    | __main__:expenditure_node:142 - Expenditure chunk 4/4:
+[Government Endowment Fund]
+A fund established with an injection of Government monies as principal, on which the income  generated  will  be  used  to  finance specific programmes on an ongoing basis. The five  Government  Endowment  Funds  are  the Community  Care  Endowment  Fund,  Edusave Endowment Fund, ElderCare Endowment Fund, Lifelong Learning Endowment Fund, and Medical Endowment Fund.
+2026-05-19 20:25:20.250 | INFO     | __main__:expenditure_node:158 - Expenditure agent answer: The Future Energy Fund has been allocated $5,000 million in FY2024. The context does not provide specific details on what the Future Energy Fund covers.
+2026-05-19 20:25:21.045 | INFO     | __main__:synthesizer_node:186 - Final answer: The Future Energy Fund has been allocated $5,000 million in FY2024. However, the specific details on what the Future Energy Fund covers are not provided in the available context.
