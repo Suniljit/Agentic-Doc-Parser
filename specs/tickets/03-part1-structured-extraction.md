@@ -47,7 +47,8 @@ class ExtractionResult(BaseModel):
 ## Implementation notes
 - `utils/parser.py` (#02) should export both `parse_pdf() -> str` (full markdown, for RAG) and `parse_pages(page_nums: list[int]) -> str` (specific pages, for targeted extraction). Docling's `DoclingDocument` gives per-page access natively — use `doc.pages` rather than parsing markdown string markers, which are fragile
 - Pages are 1-indexed in the spec; verify whether Docling uses 0- or 1-indexing internally
-- The fiscal position (page 8) likely comes from a chart; verify Docling captured a numeric value in its figure description before relying on it
+- The fiscal position (page 8) comes from a table; Docling's `TableItem` export will capture it
+- The system prompt must live in `prompts.yaml` under the `part1.extraction` key, consistent with `parser.picture_description`
 
 ## Feature brief coverage
 **Functional requirements:** FR-2, FR-7, FR-8
@@ -56,4 +57,4 @@ class ExtractionResult(BaseModel):
 - #02 — Docling PDF Parser
 
 ## Status
-`todo`
+`done`

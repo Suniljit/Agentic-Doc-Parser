@@ -4,7 +4,7 @@
 |---|--------|------|------------|--------|
 | 01 | [Project Scaffolding](01-project-scaffolding.md) | AFK | — | `done` |
 | 02 | [Docling PDF Parser](02-docling-pdf-parser.md) | AFK | #01 | `done` |
-| 03 | [Part 1: Structured Extraction](03-part1-structured-extraction.md) | AFK | #02 | `todo` |
+| 03 | [Part 1: Structured Extraction](03-part1-structured-extraction.md) | AFK | #02 | `done` |
 | 04 | [FastMCP Datetime Server](04-fastmcp-datetime-server.md) | AFK | #01 | `todo` |
 | 05 | [Part 2: Tool-Calling & Date Reasoning](05-part2-tool-calling-date-reasoning.md) | AFK | #02, #04 | `todo` |
 | 06 | [ChromaDB RAG Store](06-chromadb-rag-store.md) | AFK | #02 | `todo` |
