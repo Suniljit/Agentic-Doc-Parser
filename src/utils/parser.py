@@ -12,6 +12,7 @@ from docling.datamodel.base_models import InputFormat
 from docling.datamodel.document import DoclingDocument, PictureItem, TableItem
 from docling.datamodel.pipeline_options import PdfPipelineOptions, PictureDescriptionApiOptions
 from docling.document_converter import DocumentConverter, PdfFormatOption
+from docling_core.types.doc import DocItemLabel
 from docling_core.types.doc.document import ImageRefMode
 from dotenv import load_dotenv
 from loguru import logger
@@ -36,6 +37,8 @@ _PDF_PIPELINE_OPTIONS = PdfPipelineOptions(
         timeout=60.0,
     ),
 )
+
+_HEADING_LABELS = frozenset({DocItemLabel.SECTION_HEADER, DocItemLabel.TITLE})
 
 # Module-level cache so the DoclingDocument survives for the duration of the process.
 # All three part scripts import this module, so a single parse serves all of them.
@@ -101,12 +104,14 @@ def parse_pdf(pdf_path: Path, cache_dir: Path) -> str:
 
     doc = _get_document(pdf_path, cache_dir)
     all_pages = sorted(doc.pages.keys())
-    markdown = parse_pages(pdf_path, all_pages, cache_dir)
+    markdown = parse_pages(pdf_path, all_pages, cache_dir, include_page_markers=False)
     md_cache.write_text(markdown, encoding="utf-8")
     return markdown
 
 
-def parse_pages(pdf_path: Path, page_nums: list[int], cache_dir: Path) -> str:
+def parse_pages(
+    pdf_path: Path, page_nums: list[int], cache_dir: Path, *, include_page_markers: bool = True
+) -> str:
     """Return concatenated markdown for specific 1-indexed pages.
 
     Uses the DoclingDocument directly instead of slicing the markdown string,
@@ -148,7 +153,11 @@ def parse_pages(pdf_path: Path, page_nums: list[int], cache_dir: Path) -> str:
                 if md:
                     page_parts[primary_page].append(md)
             elif hasattr(item, "text") and item.text:
-                page_parts[primary_page].append(item.text)
+                if getattr(item, "label", None) in _HEADING_LABELS:
+                    heading_level = max(1, getattr(item, "level", 1))
+                    page_parts[primary_page].append(f"{'#' * heading_level} {item.text}")
+                else:
+                    page_parts[primary_page].append(item.text)
         except Exception as exc:
             # A corrupt or unrecognised element shouldn't abort the whole extraction.
             logger.warning("Skipping item on page(s) {}: {}", sorted(item_pages), exc)
@@ -159,7 +168,10 @@ def parse_pages(pdf_path: Path, page_nums: list[int], cache_dir: Path) -> str:
     # content that Docling already captured in table markdown or paragraph text.
     raw_pdf = pdfium.PdfDocument(str(pdf_path))
     for page_num in sorted(page_nums):
-        raw_text = raw_pdf[page_num - 1].get_textpage().get_text_range()
+        pg = raw_pdf[page_num - 1]
+        w, h = pg.get_size()
+        # Exclude bottom 55 pts to drop "MINISTRY OF FINANCE N" page-footer text.
+        raw_text = pg.get_textpage().get_text_bounded(left=0, bottom=55, right=w, top=h)
         page_content = " ".join(" ".join(p.split()).lower() for p in page_parts[page_num])
         missing = [
             line
@@ -175,7 +187,8 @@ def parse_pages(pdf_path: Path, page_nums: list[int], cache_dir: Path) -> str:
     parts: list[str] = []
     for page_num in sorted(page_nums):
         if page_parts[page_num]:
-            parts.append(f"--- Page {page_num} ---")
+            if include_page_markers:
+                parts.append(f"--- Page {page_num} ---")
             parts.extend(page_parts[page_num])
 
     return "\n\n".join(parts)
