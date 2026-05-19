@@ -9,6 +9,7 @@
 | [Docling Parser](docs/docling.md) | Deep-dive on parser.py: caching, GPT-4o chart description, prompt management |
 | [MCP Datetime Server](docs/mcp.md) | Deep-dive on mcp/datetime_server.py: normalize_date tool, stdio transport, standalone usage |
 | [RAG Store](docs/rag.md) | Deep-dive on rag.py: chunking strategy, table-aware paragraph grouping, ChromaDB embedding, search_document tool |
+| [Multi-Agent Supervisor](docs/langgraph-supervisor.md) | Deep-dive on part3_agent.py: graph structure, node behaviour, routing logic, parallel fan-out, and usage |
 
 ## Architecture Decision Records (ADRs)
 | ADR | Title | Status | Date |
@@ -19,6 +20,7 @@
 | [ADR-004](docs/adr/ADR-004-operating-revenue-subcategories-included.md) | Operating Revenue Subcategories Included in Tax List | Accepted | 2026-05-19 |
 | [ADR-005](docs/adr/ADR-005-date-parsing-edge-cases.md) | Accept dateutil Best-Effort Parsing for Partial and Ambiguous Dates | Accepted | 2026-05-19 |
 | [ADR-006](docs/adr/ADR-006-chunking-strategy.md) | H1-Only Chunking Strategy for ChromaDB RAG Store | Accepted | 2026-05-19 |
+| [ADR-007](docs/adr/ADR-007-single-shot-agent-design.md) | Single-Shot Agent Design and Hard Rejection for Off-Topic Queries | Accepted | 2026-05-19 |
 
 ## Operations & Runbooks
 | Document | Description |
