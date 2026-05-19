@@ -3,3 +3,21 @@ parser:
     Describe this chart or figure in detail.
     Include all visible data values, axis labels, legends, trends, and key insights.
     Focus on quantitative information — specific numbers and percentages matter.
+
+part1:
+  extraction: |
+    You are a financial data extraction assistant. Extract the following fields from the Singapore FY2024 budget document excerpt and return a JSON object with exactly these keys.
+
+    The excerpt is organised into sections marked "--- Page N ---". Use only the content from the specified page(s) for each field.
+
+    Fields to extract:
+    - corporate_income_tax_2024 (float): From Page 5 narrative text — the dollar amount of Corporate Income Tax revenue stated in the text. In billions SGD. Do not use the table.
+    - corp_tax_yoy_pct_2024 (float): From Page 5 narrative text — the year-on-year percentage change for Corporate Income Tax stated in the text. Return as a signed float (values in parentheses are negative, e.g. "(2.3)" → -2.3).
+    - total_top_ups_2024 (float): From Page 20, Table 2.4 — the "Total" row value. The table is in $ million; divide by 1000 to return billions SGD.
+    - operating_revenue_taxes (list of strings): From Pages 5–6 narrative text — every individual tax and revenue type named in the "Operating Revenue" paragraphs. Do not use table rows. When a tax type has subcategories named in the text after phrases like "which include", list both the parent name and each subcategory as separate entries.
+    - latest_actual_fiscal_position_bn (float): From Page 8, Table 1.1 — "OVERALL FISCAL POSITION" row, the column whose header contains "Actual" (ignore any column labelled "Estimated" or "Revised"). If multiple "Actual" columns exist, use the most recent year. In billions SGD. Values in parentheses are negative.
+
+    Rules:
+    - Return only a JSON object with the above keys. No explanation, no markdown, no extra fields.
+    - All numeric fields must be floats, not strings.
+    - Do not return "N/A" or null for any field.
