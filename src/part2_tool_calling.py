@@ -13,6 +13,7 @@ from mcp.client.stdio import stdio_client
 
 from mcp import ClientSession, StdioServerParameters
 from utils.llm import get_client
+from utils.logging_config import setup_file_logging
 from utils.parser import parse_pages
 
 PDF_PATH = Path("data/fy2024_analysis_of_revenue_and_expenditure.pdf")
@@ -76,6 +77,7 @@ async def extract_dates(client, context: str) -> list[dict]:
             except (json.JSONDecodeError, TypeError):
                 logger.warning("Could not parse extraction result as JSON: {}", msg.content)
                 return []
+            logger.debug("LLM extracted date pairs: {}", pairs)
             for pair in pairs:
                 if not pair.get("normalized_date"):
                     logger.warning(
@@ -86,7 +88,9 @@ async def extract_dates(client, context: str) -> list[dict]:
         logger.debug("Iteration {}: {} tool call(s)", iteration + 1, len(msg.tool_calls))
         for tc in msg.tool_calls:
             args = json.loads(tc.function.arguments)
+            logger.debug("Tool input — {}: {}", tc.function.name, args)
             result = await call_mcp_tool(tc.function.name, args)
+            logger.debug("Tool output — {}: {}", tc.function.name, result)
             messages.append({"role": "tool", "tool_call_id": tc.id, "content": result})
 
     logger.warning("Tool-call loop hit max iterations ({}) without completing", MAX_LOOP_ITERATIONS)
@@ -124,6 +128,7 @@ async def main() -> None:
         return
 
     logger.info("Classifying {} date(s) against reference date 2024-01-01", len(date_pairs))
+    logger.debug("Classifier input: {}", date_pairs)
     results = await classify_dates(client, date_pairs)
 
     logger.info("Classification complete: {}", results)
@@ -131,4 +136,5 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
+    setup_file_logging("part2")
     asyncio.run(main())

@@ -34,16 +34,22 @@ uv run src/part3_agent.py        # Part 3 — LangGraph multi-agent supervisor
 
 **Output convention:**
 - `stdout` — final structured result (JSON)
-- `stderr` — loguru logs (parse progress, LLM call details, routing decisions)
+- `stderr` — loguru logs at INFO level (parse progress, LLM call details, routing decisions)
+- `logs/` — DEBUG-level file log for the run, e.g. `logs/2026-05-19_14-30-00_part1.log`
 
 To suppress logs and see only the result:
 ```bash
 uv run src/part1_extraction.py 2>/dev/null
 ```
 
-To see debug-level logs (cache hits, token counts, MCP round-trips):
+To view the DEBUG log for the most recent run:
 ```bash
-LOG_LEVEL=DEBUG uv run src/part1_extraction.py
+cat logs/$(ls -t logs/ | head -1)
+```
+
+To clean up all log files:
+```bash
+rm -rf logs/
 ```
 
 ---

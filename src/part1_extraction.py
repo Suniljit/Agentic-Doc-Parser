@@ -9,6 +9,7 @@ from loguru import logger
 from pydantic import BaseModel
 
 from utils.llm import get_client
+from utils.logging_config import setup_file_logging
 from utils.parser import parse_pages
 
 PDF_PATH = Path("data/fy2024_analysis_of_revenue_and_expenditure.pdf")
@@ -30,6 +31,7 @@ class ExtractionResult(BaseModel):
 def extract() -> ExtractionResult:
     client = get_client()
     context = parse_pages(PDF_PATH, [5, 6, 8, 20], CACHE_DIR)
+    logger.debug("Extraction context ({} chars):\n{}", len(context), context)
 
     response = client.chat.completions.create(
         model="gpt-4o",
@@ -54,5 +56,6 @@ def extract() -> ExtractionResult:
 
 
 if __name__ == "__main__":
+    setup_file_logging("part1")
     result = extract()
-    print(result.model_dump_json(indent=2))
+    logger.info("Extraction result:\n{}", result.model_dump_json(indent=2))
