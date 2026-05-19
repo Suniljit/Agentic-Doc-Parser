@@ -14,10 +14,10 @@ A module `src/utils/rag.py` with two public functions: `build_store()` and `get_
 ---
 
 ### Chunking strategy
-Split the Docling markdown by section headings (`## ` or `### `) to preserve semantic coherence. Fall back to fixed-size chunks (1000 chars, 100 char overlap) for sections without headings. Each chunk retains its heading as metadata (`section`).
+Split the Docling markdown by section headings (`# `) to preserve semantic coherence — the Docling output uses only H1 headings throughout (see ADR-006). Apply a secondary fixed-size split (1000 chars, 100 char overlap) to all chunks to bound chunk size. Each chunk retains its heading as metadata (`section`); the heading is surfaced to the LLM as a `[section]` prefix in `search_document` results rather than embedded in the chunk body.
 
 ```python
-from langchain_text_splitters import MarkdownHeaderTextSplitter, RecursiveCharacterTextSplitter
+from langchain_text_splitters import MarkdownHeaderTextSplitter
 ```
 
 ---
