@@ -91,7 +91,7 @@ def build_graph(search_document):
             ]
         )
         sub_query = rewrite.content.strip()
-        logger.debug("Revenue agent sub-query: {}", sub_query)
+        logger.info("Revenue agent sub-query: {}", sub_query)
         context = search_document.invoke(sub_query)
         chunks = _split_chunks(context)
         logger.debug("Revenue agent retrieved {} chunk(s)", len(chunks))
@@ -112,7 +112,7 @@ def build_graph(search_document):
             ]
         )
         answer = response.content
-        logger.debug("Revenue agent answer: {}", answer)
+        logger.info("Revenue agent answer: {}", answer)
         return {"revenue_output": answer}
 
     def expenditure_node(state: AgentState) -> dict:
@@ -123,7 +123,7 @@ def build_graph(search_document):
             ]
         )
         sub_query = rewrite.content.strip()
-        logger.debug("Expenditure agent sub-query: {}", sub_query)
+        logger.info("Expenditure agent sub-query: {}", sub_query)
         context = search_document.invoke(sub_query)
         chunks = _split_chunks(context)
         logger.debug("Expenditure agent retrieved {} chunk(s)", len(chunks))
@@ -144,7 +144,7 @@ def build_graph(search_document):
             ]
         )
         answer = response.content
-        logger.debug("Expenditure agent answer: {}", answer)
+        logger.info("Expenditure agent answer: {}", answer)
         return {"expenditure_output": answer}
 
     def reject_node(state: AgentState) -> dict:
@@ -215,13 +215,11 @@ def main() -> None:
 
     if len(sys.argv) > 1:
         query = sys.argv[1]
-        answer = run_query(graph, query)
-        logger.info("=== Answer ===\n{}", answer)
+        run_query(graph, query)
     else:
         for i, query in enumerate(DEMO_QUERIES, 1):
             logger.info("--- Demo query {} of {} ---", i, len(DEMO_QUERIES))
-            answer = run_query(graph, query)
-            logger.info("=== Answer ===\n{}", answer)
+            run_query(graph, query)
 
 
 if __name__ == "__main__":
