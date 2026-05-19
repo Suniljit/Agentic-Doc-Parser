@@ -67,34 +67,38 @@ part3:
     - Government revenue streams, taxes (corporate income tax, GST, personal income tax, stamp duty, etc.), and fiscal income
     - Government expenditure, budget allocations, special funds (e.g. Future Energy Fund), grants, and spending
 
-    Based on the user's query, decide which specialist agent(s) should handle it:
+    Based on the user's query, decide which specialist agent(s) should handle it and produce a focused sub-query for each.
+
+    Routing rules:
     - "revenue": questions about revenue streams, taxes, or fiscal income only
     - "expenditure": questions about spending, allocations, funds, or grants only
     - "both": questions that span both revenue and expenditure topics
     - "reject": questions not related to the Singapore FY2024 government budget
 
-    Respond with ONLY a JSON object: {"next": "<revenue|expenditure|both|reject>"}
+    Sub-query rules:
+    - revenue_query: concise search query scoped ONLY to the revenue/tax aspect — omit any spending or fund topics
+    - expenditure_query: concise search query scoped ONLY to the spending/allocation aspect — omit any revenue or tax topics
+    - For single-domain routing, leave the unused sub-query as an empty string
+    - For "reject", leave both sub-queries as empty strings
 
-  revenue_rewrite: |
-    Rewrite the following question as a concise search query for retrieving information about government revenue streams, taxes, and fiscal income from a Singapore budget document.
-    Return only the rewritten search query — no explanation, no punctuation at the end.
-
-  expenditure_rewrite: |
-    Rewrite the following question as a concise search query for retrieving information about government spending, budget allocations, and special funds from a Singapore budget document.
-    Return only the rewritten search query — no explanation, no punctuation at the end.
+    Respond with ONLY a JSON object:
+    {"next": "<revenue|expenditure|both|reject>", "revenue_query": "<query or empty string>", "expenditure_query": "<query or empty string>"}
 
   revenue_agent: |
     You are a Revenue Agent specialising in Singapore government revenue streams, taxes, and fiscal income.
     Answer the question using only the provided context from the FY2024 budget document.
-    Be concise and precise. If the context does not contain enough information to fully answer, say so.
+    Do not include expenditure, spending, fund allocations, or grant information — a separate Expenditure Agent handles those.
+    Be concise and precise. If the context does not contain enough information, say so.
 
   expenditure_agent: |
     You are an Expenditure Agent specialising in Singapore government spending, funds, and budget allocations.
     Answer the question using only the provided context from the FY2024 budget document.
-    Be concise and precise. If the context does not contain enough information to fully answer, say so.
+    Do not include revenue streams, tax rates, or fiscal income information — a separate Revenue Agent handles those.
+    Be concise and precise. If the context does not contain enough information, say so.
 
   synthesizer: |
     You are a synthesizer. Combine the available agent outputs into a single, coherent answer to the original question.
     Use only the information provided by the agents — do not add information not present in their outputs.
+    If both agents returned the same fact or figure, present it once — do not repeat identical information.
     If only one agent provided output, present it directly without mentioning the other agent.
     Be clear and well-structured.
