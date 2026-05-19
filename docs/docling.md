@@ -155,6 +155,10 @@ Item handling per type:
 
 Items that span multiple pages are included if any of their pages overlap with the requested set.
 
+### Page markers
+
+Each item is labelled under its **earliest overlapping requested page** (`min(item_pages ∩ requested_pages)`). A `--- Page N ---` separator is inserted before the first item on each new page group. This gives the consuming LLM a clear provenance signal so extraction prompts can reference pages by number (e.g. "from Page 5 narrative text"). Without markers, the concatenated output is one undifferentiated blob and the model cannot distinguish content by page. See [ADR-002](adr/ADR-002-page-markers-in-extraction-context.md) for the full rationale.
+
 ---
 
 ## Prompt Management

@@ -12,6 +12,9 @@
 | ADR | Title | Status | Date |
 |-----|-------|--------|------|
 | [ADR-001](docs/adr/ADR-001-docling-pdf-parser.md) | Docling for PDF Parsing | Accepted | 2026-05-18 |
+| [ADR-002](docs/adr/ADR-002-page-markers-in-extraction-context.md) | Selective Page Extraction with Page Markers | Accepted | 2026-05-19 |
+| [ADR-003](docs/adr/ADR-003-latest-actual-fiscal-position-column.md) | "Latest Actual" Fiscal Position Maps to Actual FY2022 | Accepted | 2026-05-19 |
+| [ADR-004](docs/adr/ADR-004-operating-revenue-subcategories-included.md) | Operating Revenue Subcategories Included in Tax List | Accepted | 2026-05-19 |
 
 ## Operations & Runbooks
 | Document | Description |
