@@ -11,4 +11,3 @@ __pycache__/
 
 # ChromaDB vector store (binary, regeneratable from cached markdown)
 data/chroma/
-data/cache/chroma/
