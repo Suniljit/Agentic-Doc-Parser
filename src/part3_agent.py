@@ -40,6 +40,8 @@ DEMO_QUERIES = [
 
 class AgentState(TypedDict):
     query: str
+    revenue_query: str
+    expenditure_query: str
     revenue_output: str
     expenditure_output: str
     final_answer: str
@@ -52,8 +54,7 @@ def _split_chunks(context: str) -> list[str]:
 
 def build_graph(search_document):
     """Build and compile the LangGraph supervisor graph."""
-    supervisor_llm = ChatOpenAI(model="gpt-4o", max_completion_tokens=64, temperature=0)
-    rewrite_llm = ChatOpenAI(model="gpt-4o", max_completion_tokens=64, temperature=0)
+    supervisor_llm = ChatOpenAI(model="gpt-4o", max_completion_tokens=256, temperature=0)
     agent_llm = ChatOpenAI(model="gpt-4o", max_completion_tokens=512, temperature=0)
     synthesizer_llm = ChatOpenAI(model="gpt-4o", max_completion_tokens=1024, temperature=0)
 
@@ -64,10 +65,32 @@ def build_graph(search_document):
                 HumanMessage(content=state["query"]),
             ]
         )
-        result = json.loads(response.content)
-        decision = result["next"]
+        try:
+            result = json.loads(response.content)
+            decision = result.get("next", "reject")
+            revenue_query = result.get("revenue_query", "")
+            expenditure_query = result.get("expenditure_query", "")
+        except json.JSONDecodeError:
+            logger.warning("Supervisor returned malformed JSON; rejecting")
+            decision = "reject"
+            revenue_query = ""
+            expenditure_query = ""
+
+        # Downgrade "both" if one sub-query is missing
+        if decision == "both":
+            if not revenue_query and not expenditure_query:
+                decision = "reject"
+            elif not revenue_query:
+                decision = "expenditure"
+            elif not expenditure_query:
+                decision = "revenue"
+
         logger.info("Supervisor routed to: {}", decision)
-        return {"next": decision}
+        return {
+            "next": decision,
+            "revenue_query": revenue_query,
+            "expenditure_query": expenditure_query,
+        }
 
     def route_supervisor(state: AgentState):
         decision = state["next"]
@@ -84,13 +107,7 @@ def build_graph(search_document):
         return mapping[decision]
 
     def revenue_node(state: AgentState) -> dict:
-        rewrite = rewrite_llm.invoke(
-            [
-                SystemMessage(content=_PROMPTS["part3"]["revenue_rewrite"]),
-                HumanMessage(content=state["query"]),
-            ]
-        )
-        sub_query = rewrite.content.strip()
+        sub_query = state["revenue_query"]
         logger.info("Revenue agent sub-query: {}", sub_query)
         context = search_document.invoke(sub_query)
         chunks = _split_chunks(context)
@@ -116,13 +133,7 @@ def build_graph(search_document):
         return {"revenue_output": answer}
 
     def expenditure_node(state: AgentState) -> dict:
-        rewrite = rewrite_llm.invoke(
-            [
-                SystemMessage(content=_PROMPTS["part3"]["expenditure_rewrite"]),
-                HumanMessage(content=state["query"]),
-            ]
-        )
-        sub_query = rewrite.content.strip()
+        sub_query = state["expenditure_query"]
         logger.info("Expenditure agent sub-query: {}", sub_query)
         context = search_document.invoke(sub_query)
         chunks = _split_chunks(context)
@@ -197,6 +208,8 @@ def run_query(compiled_graph, query: str) -> str:
     result = compiled_graph.invoke(
         {
             "query": query,
+            "revenue_query": "",
+            "expenditure_query": "",
             "revenue_output": "",
             "expenditure_output": "",
             "final_answer": "",
