@@ -15,6 +15,7 @@ dependencies = [
     "langgraph",
     "mcp[cli]",
     "fastmcp",
+    "pyyaml",
 ]
 
 [tool.ruff]

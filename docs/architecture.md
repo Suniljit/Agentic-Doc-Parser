@@ -101,9 +101,10 @@ Agentic-Doc-Parser/
 │   ├── plans/              — per-ticket implementation plans
 │   └── tickets/            — work breakdown
 └── src/
+    ├── prompts.yaml        — all LLM prompts (loaded at import time)
     ├── utils/
     │   ├── llm.py          — OpenAI client singleton + loguru
-    │   └── parser.py       — Docling PDF parser (ticket 02)
+    │   └── parser.py       — Docling PDF parser with GPT-4o chart description
     ├── part1_extraction.py
     ├── part2_tool_calling.py
     └── part3_agent.py

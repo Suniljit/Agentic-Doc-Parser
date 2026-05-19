@@ -22,11 +22,11 @@ Both call a shared internal `_get_document()` helper that parses once and caches
 - Functions must be pure (no side effects beyond cache file writes)
 
 ## Acceptance criteria
-- [ ] `parse_pdf(Path("data/fy2024_analysis_of_revenue_and_expenditure.pdf"), Path("data/cache"))` returns a non-empty markdown string
-- [ ] Running the function twice: second call returns in <1s (cache hit)
-- [ ] Returned markdown contains text from page 5 (e.g. "Corporate Income Tax")
-- [ ] Returned markdown contains some representation of figure/chart content (not empty sections)
-- [ ] No `print` statements; all output via loguru
+- [x] `parse_pdf(Path("data/fy2024_analysis_of_revenue_and_expenditure.pdf"), Path("data/cache"))` returns a non-empty markdown string
+- [x] Running the function twice: second call returns in <1s (cache hit)
+- [x] Returned markdown contains text from page 5 (e.g. "Corporate Income Tax")
+- [x] Returned markdown contains some representation of figure/chart content (not empty sections)
+- [x] No `print` statements; all output via loguru
 
 ## Implementation notes
 - Docling is slow on first run (~30–60s for a large PDF) — the loguru INFO log on parse start sets expectations
@@ -42,4 +42,4 @@ Both call a shared internal `_get_document()` helper that parses once and caches
 - #01 — Project Scaffolding
 
 ## Status
-`todo`
+`done`
