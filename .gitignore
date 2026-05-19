@@ -9,5 +9,5 @@ __pycache__/
 .env
 .venv/
 
-# Cache
-data/cache/
+# ChromaDB vector store (binary, regeneratable from cached markdown)
+data/chroma/

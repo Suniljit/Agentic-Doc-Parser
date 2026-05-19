@@ -22,7 +22,7 @@ class AgentState(TypedDict):
     revenue_output: str
     expenditure_output: str
     final_answer: str
-    next: Literal["revenue", "expenditure", "both", "synthesize", "END"]
+    next: Literal["revenue", "expenditure", "both", "reject", "synthesize", "END"]
 ```
 
 ---
@@ -61,9 +61,11 @@ START → supervisor
 supervisor → revenue_agent     (if next == "revenue")
 supervisor → expenditure_agent (if next == "expenditure")
 supervisor → revenue_agent + expenditure_agent (if next == "both", parallel)
+supervisor → reject_node       (if next == "reject")
 revenue_agent → synthesizer
 expenditure_agent → synthesizer
 synthesizer → END
+reject_node → END
 ```
 
 Use a conditional edge from `supervisor` based on the `next` field. For `"both"`, use `Send` API or fan-out to both agent nodes before converging at `synthesizer`.
@@ -80,7 +82,9 @@ For each query, log: routing decision, which agents were invoked, final answer.
 
 ## Acceptance criteria
 - [ ] Script runs end-to-end: `uv run src/part3_agent.py`
+- [ ] Script accepts an optional CLI query: `uv run src/part3_agent.py "your query"`; no arg runs all three demo queries
 - [ ] Supervisor correctly routes query 1 to both agents, query 2 to revenue only, query 3 to expenditure only
+- [ ] Supervisor routes off-topic queries to `reject_node` without calling any agent or RAG
 - [ ] Each agent calls `search_document` at least once per invocation
 - [ ] Final answer for query 1 addresses both revenue streams and the Future Energy Fund
 - [ ] `max_completion_tokens` set on all GPT-4o calls
@@ -90,10 +94,12 @@ For each query, log: routing decision, which agents were invoked, final answer.
 
 ## Implementation notes
 - `ChatOpenAI` from `langchain-openai` for LLM calls within LangGraph nodes
-- Parallel fan-out for `"both"` routing: use LangGraph's `Send` API or define two outgoing conditional edges
+- Parallel fan-out for `"both"` routing: route function returns `["revenue_agent", "expenditure_agent"]` (list-return conditional edge)
 - Each agent node creates its own focused sub-query (not just passing the raw user query) for better RAG recall
-- All three GPT-4o calls per node must have explicit `max_completion_tokens`
+- All GPT-4o calls must have explicit `max_completion_tokens` (supervisor=50, agents=512, synthesizer=1024)
 - The `search_document` tool is shared between both agents (same ChromaDB store)
+- `reject_node` fires before any RAG calls; logs at WARNING level; sets `final_answer` to a polite out-of-scope message
+- Entry point: `sys.argv[1]` if present (ad-hoc query), otherwise run all three demo queries
 
 ## Feature brief coverage
 **Functional requirements:** FR-6, FR-7, FR-8

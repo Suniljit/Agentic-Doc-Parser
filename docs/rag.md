@@ -49,7 +49,7 @@ metadata["section"] inherited from parent H1 section
 OpenAIEmbeddings("text-embedding-3-small")
     │
     ▼
-Chroma.from_documents(collection="fy2024", persist_dir="data/cache/chroma/")
+Chroma.from_documents(collection="fy2024", persist_dir="data/chroma/")
     │
     ├── build_store() → Chroma    (skips if persist_dir non-empty)
     │
@@ -201,7 +201,7 @@ All prose sections in this document are under 2,400 chars (largest: `# 2.7 Fisca
 ## `build_store` — Embedding & Persistence
 
 ```python
-vectorstore = build_store(markdown, persist_dir=Path("data/cache/chroma"))
+vectorstore = build_store(markdown, persist_dir=Path("data/chroma"))
 ```
 
 On **first call:**
@@ -246,16 +246,19 @@ If a chunk has no section label (malformed input), it falls back to `[?]`.
 ## Cache Files
 
 ```
-data/cache/                    (gitignored)
-└── chroma/
-    ├── chroma.sqlite3          ChromaDB index + metadata
-    └── <uuid>/
-        └── data_level0.bin     HNSW vector index
+data/cache/                    (committed — parse outputs shared in repo)
+├── fy2024_*.json               DoclingDocument disk cache (~2 MB)
+└── fy2024_*.md                 Full-document markdown used for RAG chunking (~109 KB)
+
+data/chroma/                   (gitignored — binary, regeneratable)
+├── chroma.sqlite3              ChromaDB index + metadata
+└── <uuid>/
+    └── data_level0.bin         HNSW vector index
 ```
 
 **To force a full re-embed** (e.g. after changing chunking logic):
 ```bash
-rm -rf data/cache/chroma/
+rm -rf data/chroma/
 ```
 
 The markdown source (`data/cache/*.md`) is unaffected — only the vector index is deleted. The next `build_store` call re-chunks and re-embeds from the cached markdown.
