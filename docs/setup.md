@@ -33,13 +33,15 @@ cp .env.example .env
 
 ## Running
 
-Each part is a standalone script. All output goes to stdout (structured data) and stderr (loguru logs).
+Each part is a standalone script. All output goes to stdout (structured data) and stderr (loguru logs at INFO).
 
 ```bash
 uv run src/part1_extraction.py   # Structured extraction
 uv run src/part2_tool_calling.py # Tool calling & date reasoning
 uv run src/part3_agent.py        # Multi-agent supervisor
 ```
+
+Each run also writes a DEBUG-level log file to `logs/` (e.g. `logs/2026-05-19_14-30-00_part1.log`). The `logs/` directory is gitignored and created automatically.
 
 The FastMCP server (Part 2) is spawned automatically as a subprocess — you do not need to start it manually.
 
