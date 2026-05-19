@@ -17,6 +17,7 @@
 | [ADR-003](docs/adr/ADR-003-latest-actual-fiscal-position-column.md) | "Latest Actual" Fiscal Position Maps to Actual FY2022 | Accepted | 2026-05-19 |
 | [ADR-004](docs/adr/ADR-004-operating-revenue-subcategories-included.md) | Operating Revenue Subcategories Included in Tax List | Accepted | 2026-05-19 |
 | [ADR-005](docs/adr/ADR-005-date-parsing-edge-cases.md) | Accept dateutil Best-Effort Parsing for Partial and Ambiguous Dates | Accepted | 2026-05-19 |
+| [ADR-006](docs/adr/ADR-006-chunking-strategy.md) | H1-Only Chunking Strategy for ChromaDB RAG Store | Accepted | 2026-05-19 |
 
 ## Operations & Runbooks
 | Document | Description |
