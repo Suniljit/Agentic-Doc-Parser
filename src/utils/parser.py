@@ -110,8 +110,14 @@ def parse_pages(pdf_path: Path, page_nums: list[int], cache_dir: Path) -> str:
     markers are fragile and differ across Docling versions.
     """
     doc = _get_document(pdf_path, cache_dir)
+
+    md_cache = cache_dir / f"{pdf_path.stem}.md"
+    if not md_cache.exists():
+        md_cache.write_text(doc.export_to_markdown(), encoding="utf-8")
+
     page_set = set(page_nums)
     parts: list[str] = []
+    current_marker: int | None = None
 
     for item, _level in doc.iterate_items():
         if not item.prov:
@@ -122,6 +128,13 @@ def parse_pages(pdf_path: Path, page_nums: list[int], cache_dir: Path) -> str:
         item_pages = {p.page_no for p in item.prov}
         if not item_pages & page_set:
             continue
+
+        # Label each item under the earliest requested page it touches so the LLM
+        # can match content to the page numbers cited in the extraction prompt.
+        primary_page = min(item_pages & page_set)
+        if primary_page != current_marker:
+            parts.append(f"--- Page {primary_page} ---")
+            current_marker = primary_page
 
         try:
             if isinstance(item, TableItem):
