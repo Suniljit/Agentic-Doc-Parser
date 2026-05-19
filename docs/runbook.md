@@ -55,7 +55,7 @@ On the very first run, Docling downloads its layout models and parses the PDF, t
 ```
 data/cache/
 ├── fy2024_analysis_of_revenue_and_expenditure.json   # DoclingDocument + chart descriptions (~5–8 MB)
-└── fy2024_analysis_of_revenue_and_expenditure.md     # full markdown export (~100 KB)
+└── fy2024_analysis_of_revenue_and_expenditure.md     # full markdown with page markers + pypdfium2 supplement (~130 KB)
 ```
 
 The cache directory is gitignored and created automatically.

@@ -10,10 +10,10 @@
 
 | Function | Returns | Used by |
 |----------|---------|---------|
-| `parse_pdf(pdf_path, cache_dir)` | Full document markdown | Part 2 (page slices), Part 3 (RAG ingestion) |
+| `parse_pdf(pdf_path, cache_dir)` | Full document markdown (all pages) | Part 3 (RAG ingestion) |
 | `parse_pages(pdf_path, page_nums, cache_dir)` | Markdown for specific 1-indexed pages | Part 1 (fields extraction), Part 2 (date extraction) |
 
-Both functions call `_get_document()` internally, which is the only place a Docling parse is triggered.
+Both functions call `_get_document()` internally, which is the only place a Docling parse is triggered. `parse_pdf()` builds its output by calling `parse_pages()` over all pages — so the same pypdfium2 supplement (see below) applies to both.
 
 ---
 
@@ -42,18 +42,30 @@ _get_document(pdf_path, cache_dir)
                        DoclingDocument
                        (with descriptions stored in picture annotations)
                               │
-                    ┌─────────┴──────────┐
-                    ▼                    ▼
-             parse_pdf()           parse_pages()
-                    │                    │
-          doc.export_to_markdown()   iterate items filtered
-          (full markdown, text +     by prov.page_no
-           tables + chart            │
-           descriptions)             └── TableItem.export_to_markdown(doc)
-                    │                    PictureItem.export_to_markdown(doc,
-                    ▼                      image_mode=PLACEHOLDER)
-          data/cache/<stem>.md           TextItem.text
-          (markdown disk cache)
+                              ▼
+                         parse_pages(pdf_path, page_nums, cache_dir)
+                              │
+                    ┌─────────┴──────────────────┐
+                    │                            │
+           Docling item pass               pypdfium2 supplement
+           iterate_items() filtered        pdfium.PdfDocument(pdf_path)
+           by prov.page_no                 page.get_textpage().get_text_range()
+                    │                            │
+           TableItem.export_to_markdown(doc)     └── append lines not found
+           PictureItem.export_to_markdown(doc,        in Docling output
+             image_mode=PLACEHOLDER)                  (e.g. footer text)
+           TextItem.text
+                    │
+                    └─── combined per-page content with --- Page N --- markers
+                              │
+              ┌───────────────┴───────────────────┐
+              ▼                                   ▼
+       parse_pdf()                          direct callers
+       (all 37 pages)                       (Parts 1 & 2)
+              │
+              ▼
+    data/cache/<stem>.md
+    (full-document markdown cache)
 ```
 
 ---
@@ -72,7 +84,9 @@ The `DoclingDocument` is a Pydantic model. `model_dump_json()` / `model_validate
 Triggered only when neither cache exists. Takes ~60–100s for layout analysis + one GPT-4o vision API call per chart image found in the document. Results are written to the JSON disk cache before returning.
 
 ### Markdown cache (`data/cache/<stem>.md`)
-A separate, simpler cache specific to `parse_pdf`. Checked **before** calling `_get_document()`, so a second call to `parse_pdf` returns in under 1ms without loading the JSON or the DoclingDocument at all.
+A separate cache specific to `parse_pdf`. Checked **before** calling `_get_document()`, so a second call to `parse_pdf` returns in under 1ms without loading the JSON or the DoclingDocument at all.
+
+The `.md` file is built by calling `parse_pages()` over all 37 pages, not by `doc.export_to_markdown()`. This means it includes the pypdfium2 supplement and `--- Page N ---` markers, making it representative of the full PDF content (including text that Docling's layout analyser drops, such as cover-page footer text).
 
 ```
 parse_pdf() on second run:
@@ -161,6 +175,24 @@ Each item is labelled under its **earliest overlapping requested page** (`min(it
 
 ---
 
+## pypdfium2 Supplement
+
+Docling's layout analyser silently drops certain page regions — most notably footer text on cover pages. For example, "Distributed on Budget Day: 16 February 2024" at the bottom of page 1 is absent from the DoclingDocument entirely, even though it is present in the PDF's text layer.
+
+After the Docling item pass, `parse_pages` runs a second pass using `pypdfium2` (a Docling transitive dependency — no new install required):
+
+1. For each requested page, extract raw text via `page.get_textpage().get_text_range()`
+2. Build a normalised flat string of everything already captured by Docling for that page
+3. For each raw line not found as a substring of the Docling content, append it to that page's output
+
+The coverage check uses normalised whitespace (`.split()` then `.join()`, lowercased) so it handles Docling's occasional whitespace differences without false positives.
+
+**What this fixes:** footer text, isolated captions, and other text regions that Docling's layout classifier ignores.
+
+**What it does not fix:** text embedded in scanned images (would require OCR), or text that Docling captures but renders differently (e.g. reformatted table cells — these are already covered by the normalised substring match).
+
+---
+
 ## Prompt Management
 
 All prompts are stored in `src/prompts.yaml` and loaded once at module import:
@@ -183,7 +215,9 @@ part1:
     ...
 
 part2:
-  date_classification: |
+  extraction: |
+    ...
+  classification: |
     ...
 ```
 
@@ -195,8 +229,9 @@ part2:
 data/cache/                                              (gitignored)
 ├── fy2024_analysis_of_revenue_and_expenditure.json     ~5–8 MB
 │   └── full DoclingDocument including chart descriptions
-└── fy2024_analysis_of_revenue_and_expenditure.md       ~100 KB
-    └── full markdown exported from the DoclingDocument
+└── fy2024_analysis_of_revenue_and_expenditure.md       ~130 KB
+    └── full markdown built via parse_pages() (all 37 pages)
+        includes --- Page N --- markers and pypdfium2 supplement
 ```
 
 **To force a full re-parse** (re-runs layout analysis AND GPT-4o chart calls):
@@ -215,7 +250,7 @@ rm data/cache/*.md
 
 - **First parse is slow** — Docling downloads two layout models from HuggingFace (`docling-layout-heron`, `docling-models`) on first ever run, then runs layout analysis and calls GPT-4o once per chart. Observed: ~74s on an M-series Mac after the HuggingFace models were already locally cached; add download time on a clean machine. Picture description (GPT-4o) and layout analysis (HuggingFace models) are separate steps.
 - **Chart descriptions are interpretive** — GPT-4o describes what it sees, but may misread small axis labels or overlapping data points. Verify critical numeric values against the source PDF.
-- **`parse_pages` is not cached to disk** — each call re-slices from the in-memory or JSON-loaded DoclingDocument. For the current use cases (a few pages, called once per script) this is fine.
+- **`parse_pages` output is not individually cached** — each call re-slices from the in-memory or JSON-loaded DoclingDocument. The full-document result is cached via `parse_pdf()` → `data/cache/<stem>.md`, but per-page subsets are recomputed each time. For the current use cases (a few pages, called once per script) this is fine.
 - **Single PDF only** — `_PDF_PIPELINE_OPTIONS` is module-level and not parameterised per-file. Multi-PDF support would require refactoring `_get_document`.
 
 ---
