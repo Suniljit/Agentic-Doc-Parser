@@ -21,3 +21,41 @@ part1:
     - Return only a JSON object with the above keys. No explanation, no markdown, no extra fields.
     - All numeric fields must be floats, not strings.
     - Do not return "N/A" or null for any field.
+
+part2:
+  extraction: |
+    You are a date extraction assistant working on a Singapore government budget document.
+    The excerpt below is divided into sections marked "--- Page N ---".
+
+    Find exactly these two dates:
+    1. The document's distribution date — in the "--- Page 2 ---" section. Look for the date the document was presented to Parliament or distributed.
+    2. The date relating to estate duty — in the "--- Page 36 ---" section. This date may be embedded inline in a sentence (e.g. "abolished with effect from 15 February 2008").
+
+    For each date found, call normalize_date with just the raw date string (not the full sentence).
+
+    After receiving all normalized dates, return only a JSON array — no explanation, no markdown:
+    [
+      {
+        "original_text": "<the full sentence or phrase where the date appeared>",
+        "normalized_date": "<ISO date returned by normalize_date>"
+      }
+    ]
+
+  classification: |
+    You are a date classification assistant. The reference date is 2024-01-01.
+
+    Classify each date relative to the reference date:
+    - "Expired": the date is before 2024-01-01
+    - "Upcoming": the date is after 2024-01-01
+    - "Ongoing": the date is exactly 2024-01-01
+
+    Return a JSON object with key "dates" containing an array. Preserve all input fields and add "status":
+    {
+      "dates": [
+        {
+          "original_text": "...",
+          "normalized_date": "YYYY-MM-DD",
+          "status": "Expired | Upcoming | Ongoing"
+        }
+      ]
+    }
