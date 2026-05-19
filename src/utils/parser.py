@@ -6,8 +6,8 @@ import os
 import time
 from pathlib import Path
 
+import pypdfium2 as pdfium
 import yaml
-
 from docling.datamodel.base_models import InputFormat
 from docling.datamodel.document import DoclingDocument, PictureItem, TableItem
 from docling.datamodel.pipeline_options import PdfPipelineOptions, PictureDescriptionApiOptions
@@ -86,18 +86,22 @@ def _get_document(pdf_path: Path, cache_dir: Path) -> DoclingDocument:
 
 
 def parse_pdf(pdf_path: Path, cache_dir: Path) -> str:
-    """Return full document markdown. Caches result to cache_dir/<stem>.md."""
+    """Return full document markdown with pypdfium2 supplement. Caches to cache_dir/<stem>.md.
+
+    Uses parse_pages() over all pages so the same footer/header supplement that
+    applies to individual page extractions is also reflected in the full-document
+    markdown used for RAG chunking in Part 3.
+    """
     cache_dir.mkdir(parents=True, exist_ok=True)
     md_cache = cache_dir / f"{pdf_path.stem}.md"
 
-    # Check the markdown file before loading the DoclingDocument — this keeps the
-    # second-call return time under 1ms without touching the JSON cache at all.
     if md_cache.exists():
         logger.debug("Markdown cache hit: {}", md_cache.name)
         return md_cache.read_text(encoding="utf-8")
 
     doc = _get_document(pdf_path, cache_dir)
-    markdown = doc.export_to_markdown()
+    all_pages = sorted(doc.pages.keys())
+    markdown = parse_pages(pdf_path, all_pages, cache_dir)
     md_cache.write_text(markdown, encoding="utf-8")
     return markdown
 
@@ -108,16 +112,14 @@ def parse_pages(pdf_path: Path, page_nums: list[int], cache_dir: Path) -> str:
     Uses the DoclingDocument directly instead of slicing the markdown string,
     because Docling's item-level prov.page_no is reliable whereas markdown page
     markers are fragile and differ across Docling versions.
+
+    After the Docling pass, each page is supplemented with any lines that
+    pypdfium2's raw text extraction found but Docling's layout analyser dropped
+    (e.g. footer text on cover pages).
     """
     doc = _get_document(pdf_path, cache_dir)
-
-    md_cache = cache_dir / f"{pdf_path.stem}.md"
-    if not md_cache.exists():
-        md_cache.write_text(doc.export_to_markdown(), encoding="utf-8")
-
     page_set = set(page_nums)
-    parts: list[str] = []
-    current_marker: int | None = None
+    page_parts: dict[int, list[str]] = {p: [] for p in page_nums}
 
     for item, _level in doc.iterate_items():
         if not item.prov:
@@ -132,27 +134,49 @@ def parse_pages(pdf_path: Path, page_nums: list[int], cache_dir: Path) -> str:
         # Label each item under the earliest requested page it touches so the LLM
         # can match content to the page numbers cited in the extraction prompt.
         primary_page = min(item_pages & page_set)
-        if primary_page != current_marker:
-            parts.append(f"--- Page {primary_page} ---")
-            current_marker = primary_page
 
         try:
             if isinstance(item, TableItem):
                 # Pass doc so Docling can resolve cross-references within the table
                 md = item.export_to_markdown(doc)
                 if md:
-                    parts.append(md)
+                    page_parts[primary_page].append(md)
             elif isinstance(item, PictureItem):
                 # PLACEHOLDER mode outputs the GPT-4o description text instead of
                 # embedding the raw base64 image, which is what an LLM text input needs.
                 md = item.export_to_markdown(doc, image_mode=ImageRefMode.PLACEHOLDER)
                 if md:
-                    parts.append(md)
+                    page_parts[primary_page].append(md)
             elif hasattr(item, "text") and item.text:
-                parts.append(item.text)
+                page_parts[primary_page].append(item.text)
         except Exception as exc:
             # A corrupt or unrecognised element shouldn't abort the whole extraction.
             logger.warning("Skipping item on page(s) {}: {}", sorted(item_pages), exc)
+
+    # Supplement each page with lines that pypdfium2 found but Docling missed.
+    # Docling's layout analyser silently drops certain regions (e.g. footer text
+    # on cover pages). A normalised substring check avoids adding duplicates for
+    # content that Docling already captured in table markdown or paragraph text.
+    raw_pdf = pdfium.PdfDocument(str(pdf_path))
+    for page_num in sorted(page_nums):
+        raw_text = raw_pdf[page_num - 1].get_textpage().get_text_range()
+        page_content = " ".join(" ".join(p.split()).lower() for p in page_parts[page_num])
+        missing = [
+            line
+            for raw_line in raw_text.splitlines()
+            if (line := raw_line.strip()) and " ".join(line.split()).lower() not in page_content
+        ]
+        if missing:
+            logger.debug(
+                "Page {}: {} line(s) supplemented from raw PDF text", page_num, len(missing)
+            )
+            page_parts[page_num].extend(missing)
+
+    parts: list[str] = []
+    for page_num in sorted(page_nums):
+        if page_parts[page_num]:
+            parts.append(f"--- Page {page_num} ---")
+            parts.extend(page_parts[page_num])
 
     return "\n\n".join(parts)
 

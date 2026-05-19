@@ -11,7 +11,7 @@ Three self-contained scripts share a common foundation (OpenAI client, Docling p
 │                    SHARED FOUNDATION                     │
 │                                                         │
 │  src/utils/llm.py    — singleton OpenAI client (gpt-4o) │
-│  src/utils/parser.py — Docling PDF → markdown (cached)  │
+│  src/utils/parser.py — Docling + pypdfium2 → markdown   │
 └───────────────┬─────────────────────────────────────────┘
                 │ markdown (cached to data/cache/)
     ┌───────────┼──────────────────────┐
