@@ -28,7 +28,7 @@ Each agent calls `search_document` once, receives 4 chunks, and produces its ans
 ### Why
 
 - **Query space is known and narrow.** The three demo queries and typical ad-hoc queries about a budget document are answerable from a handful of topically relevant chunks. Multi-hop retrieval (needing to first find one fact to know what to look for next) is uncommon in this domain.
-- **61 chunks, k=4 retrieval.** The corpus is small. A well-formed sub-query reliably surfaces the right material. Each agent uses an LLM rewrite step (GPT-4o, 64 tokens) to produce a domain-focused search query before calling ChromaDB — this acts as a lightweight substitute for iterative query refinement without the cost of a loop.
+- **61 chunks, k=4 retrieval.** The corpus is small. A well-formed sub-query reliably surfaces the right material. The supervisor decomposes each incoming query into domain-scoped sub-queries (one per agent) in the same call that decides routing — agents use these directly for ChromaDB retrieval without a separate rewrite step.
 - **Diminishing returns.** Iterative retrieval helps when the first pass returns irrelevant chunks. Given the chunk quality (table-aware, section-labelled) and the narrow domain, a second pass rarely changes the answer meaningfully for this document.
 - **Cost and latency multiply.** A ReAct loop with a 3-iteration cap roughly triples the LLM calls per agent node (retrieve → reflect → retrieve → reflect → answer). For a POC with parallel agents, this cost compounds quickly.
 - **Graph complexity.** A loop requires either a new graph node (a "reflect" node that decides whether to continue) or a node that manages its own internal loop. Both add surface area that is hard to test and debug.

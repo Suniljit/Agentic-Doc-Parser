@@ -6,28 +6,28 @@
 
 ## Overview
 
-Part 3 implements a LangGraph `StateGraph` with five nodes. A GPT-4o supervisor classifies each incoming query and routes it to one or both specialist agents, which retrieve context from ChromaDB before answering. A synthesizer combines agent outputs into a final answer.
+Part 3 implements a LangGraph `StateGraph` with five nodes. A GPT-4o supervisor classifies each incoming query, decomposes it into domain-scoped sub-queries, and routes to one or both specialist agents. Each agent retrieves context from ChromaDB using its pre-scoped sub-query. A synthesizer combines agent outputs into a final answer.
 
 ```
 query (sys.argv[1] or demo)
     │
     ▼
 [START] ──► supervisor (GPT-4o) ──► route_supervisor()
-                                          │
-     ┌────────────────────────────────────┼──────────────────┬──────────────┐
- "revenue"                            "both"           "expenditure"    "reject"
-     │                            (parallel fan-out)        │                │
-     │                              ┌──────┴──────┐         │                │
-     ▼                              ▼             ▼         ▼                ▼
-revenue_agent ◄─────────────────────┘             └──► expenditure_agent  reject_node
-(query rewrite                                        (query rewrite      (no LLM call)
- + RAG + GPT-4o)                                       + RAG + GPT-4o)
-     │                                                      │                 │
-     └─────────────────────────┬────────────────────────────┘                 │
-                               ▼                                              │
-                         synthesizer (GPT-4o) ────────────────────────────────┘
-                               │
-                             [END]
+            (sets revenue_query               │
+             and expenditure_query)           │
+     ┌────────────────────────────────────────┼──────────────────┬──────────────┐
+ "revenue"                                "both"           "expenditure"    "reject"
+     │                                (parallel fan-out)        │                │
+     │                                  ┌──────┴──────┐         │                │
+     ▼                                  ▼             ▼         ▼                ▼
+revenue_agent ◄─────────────────────────┘             └──► expenditure_agent  reject_node
+(RAG + GPT-4o)                                             (RAG + GPT-4o)    (no LLM call)
+     │                                                          │                │
+     └─────────────────────────────┬────────────────────────────┘                │
+                                   ▼                                             │
+                             synthesizer (GPT-4o) ───────────────────────────────┘
+                                   │
+                                 [END]
 ```
 
 ---
@@ -37,6 +37,8 @@ revenue_agent ◄─────────────────────
 ```python
 class AgentState(TypedDict):
     query: str              # original user query — never mutated after START
+    revenue_query: str      # revenue-scoped sub-query set by supervisor; "" if agent not needed
+    expenditure_query: str  # expenditure-scoped sub-query set by supervisor; "" if agent not needed
     revenue_output: str     # populated by revenue_agent; "" if agent did not run
     expenditure_output: str # populated by expenditure_agent; "" if agent did not run
     final_answer: str       # populated by synthesizer or reject_node
@@ -51,13 +53,20 @@ class AgentState(TypedDict):
 
 ### `supervisor`
 
-**LLM:** `gpt-4o`, `max_completion_tokens=64`, `temperature=0`
+**LLM:** `gpt-4o`, `max_completion_tokens=256`, `temperature=0`
 
-Receives the raw query and classifies it into one of four routing decisions: `revenue`, `expenditure`, `both`, or `reject`. The system prompt lists the document's domain (Singapore FY2024 budget — revenue streams, taxes, expenditure, funds) and maps each decision to explicit query types.
+Receives the raw query and in a single call: (1) classifies it into one of four routing decisions (`revenue`, `expenditure`, `both`, `reject`), and (2) produces a domain-scoped sub-query for each relevant agent.
 
-Returns JSON `{"next": "<decision>"}`. Logs routing decision at INFO.
+Returns JSON:
+```json
+{"next": "both", "revenue_query": "GST personal income tax operating revenue FY2024", "expenditure_query": "Future Energy Fund allocation top-ups"}
+```
 
-**Why 64 tokens:** the entire output is a single JSON key-value pair; extra tokens are wasted.
+For single-domain routing, the unused sub-query is an empty string. For `reject`, both sub-queries are empty.
+
+`supervisor_node` applies a safety downgrade: if `next == "both"` but one sub-query is empty, it downgrades to single-domain routing. Malformed JSON falls back to `reject` with a WARNING log.
+
+Logs routing decision at INFO. Sub-queries are passed directly to agent nodes via state — no separate rewrite step. See [ADR-008](adr/ADR-008-supervisor-query-decomposition.md).
 
 ---
 
@@ -80,17 +89,16 @@ Unexpected supervisor values fall back to `"reject_node"` with a WARNING log.
 
 ### `revenue_agent`
 
-Three sequential steps within a single node:
+Two sequential steps within a single node:
 
-1. **Query rewrite** — `gpt-4o`, `max_completion_tokens=64`: rewrites the original query into a revenue-focused search query (e.g. `"corporate income tax rate FY2024 operating revenue"`). Logged at DEBUG as `Revenue agent sub-query`.
-2. **RAG retrieval** — calls `search_document.invoke(sub_query)` → 4 chunks from ChromaDB. Chunk count logged at DEBUG.
-3. **Answer** — `gpt-4o`, `max_completion_tokens=512`: system role `"You are a Revenue Agent specialising in Singapore government revenue streams, taxes, and fiscal income."` Receives retrieved context, the original query (for full intent), and the rewritten sub-query (as explicit scope). Telling the agent another agent handles the rest of the original question prevents it from hedging about topics outside its context. Answer logged at DEBUG; stored in `revenue_output`.
+1. **RAG retrieval** — reads `state["revenue_query"]` (set by supervisor) and calls `search_document.invoke(sub_query)` → 4 chunks from ChromaDB. Sub-query and chunk count logged at INFO/DEBUG.
+2. **Answer** — `gpt-4o`, `max_completion_tokens=512`: system role instructs the agent to specialise in revenue streams, taxes, and fiscal income, and **explicitly prohibits answering expenditure or fund questions** ("a separate Expenditure Agent handles those"). Receives retrieved context, the original query (for full intent), and the sub-query (as scope). Answer logged at INFO; stored in `revenue_output`.
 
 ---
 
 ### `expenditure_agent`
 
-Same three-step structure as `revenue_agent`. Rewrite prompt targets spending, allocations, and funds. System role: `"You are an Expenditure Agent specialising in Singapore government spending, funds, and budget allocations."`. Answer step receives the same context + original question + focused sub-query pattern. Answer stored in `expenditure_output`.
+Same two-step structure as `revenue_agent`. Uses `state["expenditure_query"]` for retrieval. System role instructs the agent to specialise in spending, funds, and budget allocations, and **explicitly prohibits answering revenue or tax questions** ("a separate Revenue Agent handles those"). Answer stored in `expenditure_output`.
 
 ---
 
@@ -104,7 +112,7 @@ No LLM call. Logs a WARNING with the rejected query, then sets `final_answer` to
 
 **LLM:** `gpt-4o`, `max_completion_tokens=1024`, `temperature=0`
 
-Combines whichever agent outputs are non-empty into a single coherent answer. The system prompt instructs GPT-4o not to invent information and to present a single agent's output directly if only one agent ran (avoiding "the other agent found nothing" noise).
+Combines whichever agent outputs are non-empty into a single coherent answer. The system prompt instructs GPT-4o to: not invent information; deduplicate — if both agents returned the same fact or figure, present it once; present a single agent's output directly if only one agent ran (avoiding "the other agent found nothing" noise).
 
 Logs final answer at INFO; stores in `final_answer`.
 
@@ -149,12 +157,10 @@ All prompts live in `src/prompts.yaml` under the `part3` key:
 
 | Key | Used by | Purpose |
 |-----|---------|---------|
-| `part3.supervisor` | `supervisor` node | 4-way routing classification |
-| `part3.revenue_rewrite` | `revenue_agent` node (step 1) | Rewrite query for revenue-focused RAG retrieval |
-| `part3.expenditure_rewrite` | `expenditure_agent` node (step 1) | Rewrite query for expenditure-focused RAG retrieval |
-| `part3.revenue_agent` | `revenue_agent` node (step 3) | System role + answer instructions |
-| `part3.expenditure_agent` | `expenditure_agent` node (step 3) | System role + answer instructions |
-| `part3.synthesizer` | `synthesizer` node | Combine agent outputs |
+| `part3.supervisor` | `supervisor` node | 4-way routing + sub-query decomposition per domain |
+| `part3.revenue_agent` | `revenue_agent` node | System role, domain exclusion rules, answer instructions |
+| `part3.expenditure_agent` | `expenditure_agent` node | System role, domain exclusion rules, answer instructions |
+| `part3.synthesizer` | `synthesizer` node | Combine and deduplicate agent outputs |
 
 ---
 
@@ -162,9 +168,8 @@ All prompts live in `src/prompts.yaml` under the `part3` key:
 
 | Node / Step | `max_completion_tokens` | Rationale |
 |-------------|------------------------|-----------|
-| Supervisor | 64 | Single JSON key-value output |
-| Revenue / Expenditure rewrite (step 1) | 64 | Rewritten search query; typically < 20 tokens |
-| Revenue / Expenditure answer (step 3) | 512 | Focused domain answer; rarely needs more |
+| Supervisor | 256 | JSON with routing decision + two sub-queries |
+| Revenue / Expenditure answer | 512 | Focused domain answer; rarely needs more |
 | Synthesizer | 1024 | Combines up to two agent outputs |
 
 ---
