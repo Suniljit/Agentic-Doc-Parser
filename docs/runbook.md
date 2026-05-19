@@ -89,11 +89,11 @@ less data/cache/fy2024_analysis_of_revenue_and_expenditure.md
 
 ## ChromaDB Store Management
 
-The vector store is built lazily on the first run of Part 3 and persisted to `data/cache/chroma/`. `build_store()` checks for a non-empty `chroma/` directory at startup — if it exists, the store is loaded directly with no API calls.
+The vector store is built lazily on the first run of Part 3 and persisted to `data/chroma/`. `build_store()` checks for a non-empty `chroma/` directory at startup — if it exists, the store is loaded directly with no API calls.
 
 ### Check whether the store exists
 ```bash
-ls data/cache/chroma/
+ls data/chroma/
 ```
 If the directory is missing or empty, the next Part 3 run will build it from scratch.
 
@@ -105,7 +105,7 @@ from src.utils.rag import build_store
 from src.utils.parser import parse_pdf
 
 md = parse_pdf(Path('data/fy2024_analysis_of_revenue_and_expenditure.pdf'), Path('data/cache'))
-build_store(md, Path('data/cache/chroma'))
+build_store(md, Path('data/chroma'))
 "
 ```
 This embeds 61 chunks via the OpenAI embeddings API (~2s, ~$0.001) and writes the index to disk.
@@ -115,26 +115,26 @@ This embeds 61 chunks via the OpenAI embeddings API (~2s, ~$0.001) and writes th
 Use this after changing chunking logic in `_chunk_section` or switching embedding models.
 
 ```bash
-rm -rf data/cache/chroma/
+rm -rf data/chroma/
 uv run src/part3_agent.py        # rebuilds automatically on next run
 ```
 
 Or rebuild manually without running the agent:
 ```bash
-rm -rf data/cache/chroma/
+rm -rf data/chroma/
 uv run python -c "
 from pathlib import Path
 from src.utils.rag import build_store
 from src.utils.parser import parse_pdf
 
 md = parse_pdf(Path('data/fy2024_analysis_of_revenue_and_expenditure.pdf'), Path('data/cache'))
-build_store(md, Path('data/cache/chroma'))
+build_store(md, Path('data/chroma'))
 "
 ```
 
 ### Delete only the vector store (keep Docling caches)
 ```bash
-rm -rf data/cache/chroma/
+rm -rf data/chroma/
 ```
 The `.json` and `.md` Docling caches are untouched. The next Part 3 run re-embeds from the cached markdown — no PDF re-parse, no GPT-4o chart calls.
 
@@ -146,7 +146,7 @@ from src.utils.rag import build_store, get_retriever_tool
 from src.utils.parser import parse_pdf
 
 md = parse_pdf(Path('data/fy2024_analysis_of_revenue_and_expenditure.pdf'), Path('data/cache'))
-store = build_store(md, Path('data/cache/chroma'))
+store = build_store(md, Path('data/chroma'))
 search = get_retriever_tool(store)
 
 print(search.invoke({'query': 'Corporate Income Tax'}))
@@ -164,7 +164,7 @@ load_dotenv()
 store = Chroma(
     collection_name='fy2024',
     embedding_function=OpenAIEmbeddings(model='text-embedding-3-small'),
-    persist_directory='data/cache/chroma',
+    persist_directory='data/chroma',
 )
 print('Chunks in store:', store._collection.count())
 "
@@ -177,9 +177,9 @@ print('Chunks in store:', store._collection.count())
 | Scenario | Action |
 |----------|--------|
 | Normal Part 3 run | Nothing — store loads automatically if `chroma/` exists |
-| Changed `_chunk_section` or separator logic | `rm -rf data/cache/chroma/` then re-run |
-| Switched embedding model | `rm -rf data/cache/chroma/` then re-run |
-| Docling markdown regenerated (`.md` deleted) | `rm -rf data/cache/chroma/` then re-run — chunks will differ |
+| Changed `_chunk_section` or separator logic | `rm -rf data/chroma/` then re-run |
+| Switched embedding model | `rm -rf data/chroma/` then re-run |
+| Docling markdown regenerated (`.md` deleted) | `rm -rf data/chroma/` then re-run — chunks will differ |
 | Markdown unchanged, just re-querying | No action — existing store is reused |
 
 ---
@@ -216,10 +216,10 @@ The FastMCP datetime server is spawned as a subprocess automatically. If it cras
   ```
 
 ### ChromaDB store missing or empty (Part 3)
-Part 3 calls `build_store()` at startup, which creates `data/cache/chroma/` automatically. If it fails:
+Part 3 calls `build_store()` at startup, which creates `data/chroma/` automatically. If it fails:
 - Check that `data/cache/fy2024_analysis_of_revenue_and_expenditure.md` exists (if not, run Part 1 first to trigger the Docling parse)
 - Check that `OPENAI_API_KEY` is set — `build_store()` calls the embeddings API on first run
-- If `data/cache/chroma/` exists but appears corrupt, delete it and re-run: `rm -rf data/cache/chroma/`
+- If `data/chroma/` exists but appears corrupt, delete it and re-run: `rm -rf data/chroma/`
 
 ---
 
