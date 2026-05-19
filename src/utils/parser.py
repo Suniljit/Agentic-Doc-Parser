@@ -6,7 +6,6 @@ import os
 import time
 from pathlib import Path
 
-import pypdfium2 as pdfium
 import yaml
 from docling.datamodel.base_models import InputFormat
 from docling.datamodel.document import DoclingDocument, PictureItem, TableItem
@@ -89,9 +88,9 @@ def _get_document(pdf_path: Path, cache_dir: Path) -> DoclingDocument:
 
 
 def parse_pdf(pdf_path: Path, cache_dir: Path) -> str:
-    """Return full document markdown with pypdfium2 supplement. Caches to cache_dir/<stem>.md.
+    """Return full document markdown. Caches to cache_dir/<stem>.md.
 
-    Uses parse_pages() over all pages so the same footer/header supplement that
+    Uses parse_pages() over all pages so the page_footer supplement that
     applies to individual page extractions is also reflected in the full-document
     markdown used for RAG chunking in Part 3.
     """
@@ -118,9 +117,9 @@ def parse_pages(
     because Docling's item-level prov.page_no is reliable whereas markdown page
     markers are fragile and differ across Docling versions.
 
-    After the Docling pass, each page is supplemented with any lines that
-    pypdfium2's raw text extraction found but Docling's layout analyser dropped
-    (e.g. footer text on cover pages).
+    After the iterate_items() pass, page_footer items from doc.texts are appended.
+    These are skipped by iterate_items() but present in the DoclingDocument (e.g.
+    "Distributed on Budget Day" on the cover page).
     """
     doc = _get_document(pdf_path, cache_dir)
     page_set = set(page_nums)
@@ -162,27 +161,33 @@ def parse_pages(
             # A corrupt or unrecognised element shouldn't abort the whole extraction.
             logger.warning("Skipping item on page(s) {}: {}", sorted(item_pages), exc)
 
-    # Supplement each page with lines that pypdfium2 found but Docling missed.
-    # Docling's layout analyser silently drops certain regions (e.g. footer text
-    # on cover pages). A normalised substring check avoids adding duplicates for
-    # content that Docling already captured in table markdown or paragraph text.
-    raw_pdf = pdfium.PdfDocument(str(pdf_path))
-    for page_num in sorted(page_nums):
-        pg = raw_pdf[page_num - 1]
-        w, h = pg.get_size()
-        # Exclude bottom 55 pts to drop "MINISTRY OF FINANCE N" page-footer text.
-        raw_text = pg.get_textpage().get_text_bounded(left=0, bottom=55, right=w, top=h)
-        page_content = " ".join(" ".join(p.split()).lower() for p in page_parts[page_num])
-        missing = [
-            line
-            for raw_line in raw_text.splitlines()
-            if (line := raw_line.strip()) and " ".join(line.split()).lower() not in page_content
-        ]
-        if missing:
-            logger.debug(
-                "Page {}: {} line(s) supplemented from raw PDF text", page_num, len(missing)
-            )
-            page_parts[page_num].extend(missing)
+    # doc.texts holds page_footer items that iterate_items() skips. Add them to
+    # the appropriate page so cover-page metadata (e.g. publication date) is retained.
+    # Running footers (e.g. "MINISTRY OF FINANCE") repeat across many pages and add
+    # no informational value; unique footers (appearing on ≤2 pages) are kept.
+    footer_items = [
+        item
+        for item in doc.texts
+        if getattr(item, "label", None) == DocItemLabel.PAGE_FOOTER and item.prov and item.text
+    ]
+    # Count how many distinct document pages each footer text appears on across all items.
+    # Running footers create one item per page, so we must accumulate across items.
+    footer_page_counts: dict[str, set[int]] = {}
+    for item in footer_items:
+        key = " ".join(item.text.split())
+        for p in item.prov:
+            footer_page_counts.setdefault(key, set()).add(p.page_no)
+
+    for item in footer_items:
+        key = " ".join(item.text.split())
+        # Skip running footers (appear on many pages) and bare page numbers (short text).
+        if len(footer_page_counts.get(key, set())) > 2 or len(key) < 10:
+            continue
+        item_pages = {p.page_no for p in item.prov}
+        if not item_pages & page_set:
+            continue
+        primary_page = min(item_pages & page_set)
+        page_parts[primary_page].append(item.text)
 
     parts: list[str] = []
     for page_num in sorted(page_nums):

@@ -13,7 +13,7 @@
 | `parse_pdf(pdf_path, cache_dir)` | Full document markdown (all pages) | Part 3 (RAG ingestion) |
 | `parse_pages(pdf_path, page_nums, cache_dir)` | Markdown for specific 1-indexed pages | Part 1 (fields extraction), Part 2 (date extraction) |
 
-Both functions call `_get_document()` internally, which is the only place a Docling parse is triggered. `parse_pdf()` builds its output by calling `parse_pages()` over all pages — so the same pypdfium2 supplement (see below) applies to both.
+Both functions call `_get_document()` internally, which is the only place a Docling parse is triggered. `parse_pdf()` builds its output by calling `parse_pages()` over all pages — so the same page_footer supplement (see below) applies to both.
 
 ---
 
@@ -47,14 +47,14 @@ _get_document(pdf_path, cache_dir)
                               │
                     ┌─────────┴──────────────────┐
                     │                            │
-           Docling item pass               pypdfium2 supplement
-           iterate_items() filtered        pdfium.PdfDocument(pdf_path)
-           by prov.page_no                 page.get_textpage().get_text_range()
-                    │                            │
+           Docling item pass               doc.texts PAGE_FOOTER pass
+           iterate_items() filtered        unique footer items skipped by
+           by prov.page_no                 iterate_items() (e.g. cover-page
+                    │                      publication date)
            SectionHeaderItem → "#" * level + " " + text
-           TableItem.export_to_markdown(doc)     └── append lines not found
-           PictureItem.export_to_markdown(doc,        in Docling output
-             image_mode=PLACEHOLDER)                  (e.g. footer text)
+           TableItem.export_to_markdown(doc)
+           PictureItem.export_to_markdown(doc,
+             image_mode=PLACEHOLDER)
            TextItem.text
                     │
                     └─── assembled per-page content
@@ -89,7 +89,7 @@ Triggered only when neither cache exists. Takes ~60–100s for layout analysis +
 ### Markdown cache (`data/cache/<stem>.md`)
 A separate cache specific to `parse_pdf`. Checked **before** calling `_get_document()`, so a second call to `parse_pdf` returns in under 1ms without loading the JSON or the DoclingDocument at all.
 
-The `.md` file is built by calling `parse_pages(..., include_page_markers=False)` over all 37 pages, not by `doc.export_to_markdown()`. This preserves the pypdfium2 supplement (text that Docling's layout analyser drops) and emits proper markdown heading syntax, but omits `--- Page N ---` markers — keeping the file as clean semantic markdown suitable for RAG chunking by section header.
+The `.md` file is built by calling `parse_pages(..., include_page_markers=False)` over all 37 pages, not by `doc.export_to_markdown()`. This preserves the page_footer supplement (unique cover-page metadata from `doc.texts`) and emits proper markdown heading syntax, but omits `--- Page N ---` markers — keeping the file as clean semantic markdown suitable for RAG chunking by section header.
 
 ```
 parse_pdf() on second run:
@@ -179,21 +179,22 @@ Each item is labelled under its **earliest overlapping requested page** (`min(it
 
 ---
 
-## pypdfium2 Supplement
+## Page Footer Supplement
 
-Docling's layout analyser silently drops certain page regions — most notably footer text on cover pages. For example, "Distributed on Budget Day: 16 February 2024" at the bottom of page 1 is absent from the DoclingDocument entirely, even though it is present in the PDF's text layer.
+Docling's `iterate_items()` silently skips items with `label=PAGE_FOOTER`, even though they are present in `DoclingDocument.texts`. For example, "Distributed on Budget Day: 16 February 2024" on page 1 is classified as a `PAGE_FOOTER` and excluded from the normal item iteration.
 
-After the Docling item pass, `parse_pages` runs a second pass using `pypdfium2` (a Docling transitive dependency — no new install required):
+After the `iterate_items()` pass, `parse_pages` runs a second pass directly over `doc.texts` to recover these items:
 
-1. For each requested page, extract raw text via `page.get_textpage().get_text_range()`
-2. Build a normalised flat string of everything already captured by Docling for that page
-3. For each raw line not found as a substring of the Docling content, append it to that page's output
+1. Collect all items in `doc.texts` with `label == DocItemLabel.PAGE_FOOTER`
+2. Tally how many distinct document pages each footer text appears on across all items
+3. Skip running footers (same text on >2 pages, e.g. "MINISTRY OF FINANCE") and bare page numbers (<10 chars)
+4. Append the remaining unique footer text to the appropriate page's output
 
-The coverage check uses normalised whitespace (`.split()` then `.join()`, lowercased) so it handles Docling's occasional whitespace differences without false positives.
+**Why not pypdfium2?** An earlier implementation used `pypdfium2` for raw text extraction, but it caused cross-page duplication: Docling joins hyphenated line-break words (e.g. `strongerthan-expected`) while pypdfium2 preserves the hyphen (`stronger-than-expected`), so the deduplication check failed and paragraph continuations bled into the wrong section. Using `doc.texts` directly avoids raw extraction entirely.
 
-**What this fixes:** footer text, isolated captions, and other text regions that Docling's layout classifier ignores.
+**What this fixes:** unique per-page metadata (publication dates, document identifiers) that Docling classifies as `PAGE_FOOTER` and omits from `iterate_items()`.
 
-**What it does not fix:** text embedded in scanned images (would require OCR), or text that Docling captures but renders differently (e.g. reformatted table cells — these are already covered by the normalised substring match).
+**What it does not fix:** text embedded in scanned images (would require OCR).
 
 ---
 
@@ -236,7 +237,7 @@ data/cache/                                              (gitignored)
 └── fy2024_analysis_of_revenue_and_expenditure.md       ~130 KB
     └── full markdown built via parse_pages(..., include_page_markers=False)
         clean semantic markdown: # headers, tables, chart descriptions,
-        pypdfium2 supplement — no --- Page N --- markers
+        page_footer supplement — no --- Page N --- markers
 ```
 
 **To force a full re-parse** (re-runs layout analysis AND GPT-4o chart calls):
