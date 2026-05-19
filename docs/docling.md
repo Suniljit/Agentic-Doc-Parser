@@ -51,21 +51,24 @@ _get_document(pdf_path, cache_dir)
            iterate_items() filtered        pdfium.PdfDocument(pdf_path)
            by prov.page_no                 page.get_textpage().get_text_range()
                     │                            │
+           SectionHeaderItem → "#" * level + " " + text
            TableItem.export_to_markdown(doc)     └── append lines not found
            PictureItem.export_to_markdown(doc,        in Docling output
              image_mode=PLACEHOLDER)                  (e.g. footer text)
            TextItem.text
                     │
-                    └─── combined per-page content with --- Page N --- markers
+                    └─── assembled per-page content
                               │
               ┌───────────────┴───────────────────┐
               ▼                                   ▼
        parse_pdf()                          direct callers
-       (all 37 pages)                       (Parts 1 & 2)
-              │
-              ▼
-    data/cache/<stem>.md
-    (full-document markdown cache)
+       (all 37 pages,                       (Parts 1 & 2,
+        include_page_markers=False)          include_page_markers=True [default])
+              │                                   │
+              ▼                                   ▼
+    data/cache/<stem>.md               --- Page N --- markers present
+    (clean semantic markdown,          for LLM page-reference grounding
+     no page markers)
 ```
 
 ---
@@ -86,7 +89,7 @@ Triggered only when neither cache exists. Takes ~60–100s for layout analysis +
 ### Markdown cache (`data/cache/<stem>.md`)
 A separate cache specific to `parse_pdf`. Checked **before** calling `_get_document()`, so a second call to `parse_pdf` returns in under 1ms without loading the JSON or the DoclingDocument at all.
 
-The `.md` file is built by calling `parse_pages()` over all 37 pages, not by `doc.export_to_markdown()`. This means it includes the pypdfium2 supplement and `--- Page N ---` markers, making it representative of the full PDF content (including text that Docling's layout analyser drops, such as cover-page footer text).
+The `.md` file is built by calling `parse_pages(..., include_page_markers=False)` over all 37 pages, not by `doc.export_to_markdown()`. This preserves the pypdfium2 supplement (text that Docling's layout analyser drops) and emits proper markdown heading syntax, but omits `--- Page N ---` markers — keeping the file as clean semantic markdown suitable for RAG chunking by section header.
 
 ```
 parse_pdf() on second run:
@@ -163,9 +166,10 @@ Item handling per type:
 
 | Item type | How it is extracted |
 |-----------|-------------------|
-| `TextItem` | `item.text` |
+| `SectionHeaderItem` / `TitleItem` | `"#" * item.level + " " + item.text` — emits proper `#`/`##` markdown heading syntax |
 | `TableItem` | `item.export_to_markdown(doc)` — `doc` reference required for cross-item resolution |
 | `PictureItem` | `item.export_to_markdown(doc, image_mode=ImageRefMode.PLACEHOLDER)` — returns caption + GPT-4o description |
+| Other `TextItem` | `item.text` |
 
 Items that span multiple pages are included if any of their pages overlap with the requested set.
 
@@ -230,8 +234,9 @@ data/cache/                                              (gitignored)
 ├── fy2024_analysis_of_revenue_and_expenditure.json     ~5–8 MB
 │   └── full DoclingDocument including chart descriptions
 └── fy2024_analysis_of_revenue_and_expenditure.md       ~130 KB
-    └── full markdown built via parse_pages() (all 37 pages)
-        includes --- Page N --- markers and pypdfium2 supplement
+    └── full markdown built via parse_pages(..., include_page_markers=False)
+        clean semantic markdown: # headers, tables, chart descriptions,
+        pypdfium2 supplement — no --- Page N --- markers
 ```
 
 **To force a full re-parse** (re-runs layout analysis AND GPT-4o chart calls):

@@ -51,6 +51,12 @@ Pass only pages 5, 6, 8, and 20 to `parse_pages()` — the exact pages cited in 
 
 ---
 
+## Scope Note
+
+This ADR applies to `parse_pages()` callers (Parts 1 & 2), where page-reference grounding is required. `parse_pdf()` — which produces the full-document markdown for Part 3 RAG ingestion — calls `parse_pages(..., include_page_markers=False)` intentionally: page markers are noise for a chunker that splits on semantic section headers.
+
+---
+
 ## Consequences
 
 **Positive:**
