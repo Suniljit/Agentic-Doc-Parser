@@ -31,8 +31,10 @@ def _chunk_section(doc: Document) -> list[Document]:
     chunk); any prose that is not adjacent to a table is kept together as one
     additional chunk.
     """
+    # Split on double-newlines, which often separate paragraphs and/or tables in the markdown.
     paragraphs = [p.strip() for p in doc.page_content.split("  \n") if p.strip()]
-    metadata = doc.metadata
+
+    metadata = doc.metadata  # contains {"section": "Heading Text"}
 
     if not any(_is_table(p) for p in paragraphs):
         return [Document(page_content=doc.page_content.strip(), metadata=metadata)]
@@ -53,9 +55,9 @@ def _chunk_section(doc: Document) -> list[Document]:
             if pending_prose:
                 group.append(pending_prose.pop())
                 if pending_prose:
-                    result.append(Document(
-                        page_content="\n\n".join(pending_prose), metadata=metadata
-                    ))
+                    result.append(
+                        Document(page_content="\n\n".join(pending_prose), metadata=metadata)
+                    )
                     pending_prose = []
 
             group.append(para)
@@ -65,20 +67,21 @@ def _chunk_section(doc: Document) -> list[Document]:
             # prose paragraph immediately followed by a table — that paragraph
             # is the next table's title, not a footnote.
             while i < n and not _is_table(paragraphs[i]):
-                if i + 1 < n and _is_table(paragraphs[i + 1]):
+                if i + 1 < n and _is_table(
+                    paragraphs[i + 1]
+                ):  # next para is a table, so current para is likely a title, not a footnote
                     break
                 group.append(paragraphs[i])
                 i += 1
 
             result.append(Document(page_content="\n\n".join(group), metadata=metadata))
         else:
-            pending_prose.append(para)
+            pending_prose.append(para)  # current paragraph is prose.
             i += 1
 
+    # Flush any remaining prose after the last table.
     if pending_prose:
-        result.append(Document(
-            page_content="\n\n".join(pending_prose), metadata=metadata
-        ))
+        result.append(Document(page_content="\n\n".join(pending_prose), metadata=metadata))
 
     return result
 
@@ -90,6 +93,7 @@ def build_store(markdown: str, persist_dir: Path) -> Chroma:
     """
     embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
 
+    # Check for existing ChromaDB store
     if persist_dir.exists() and any(persist_dir.iterdir()):
         logger.info("ChromaDB store found at {} — loading existing", persist_dir)
         return Chroma(
@@ -98,6 +102,7 @@ def build_store(markdown: str, persist_dir: Path) -> Chroma:
             persist_directory=str(persist_dir),
         )
 
+    # No existing store found — build a new one.
     logger.info("Building ChromaDB store…")
 
     section_docs = _H1_SPLITTER.split_text(markdown)
@@ -131,8 +136,6 @@ def get_retriever_tool(vectorstore: Chroma, k: int = 4):
     def search_document(query: str) -> str:
         """Search the FY2024 budget document for information relevant to the query."""
         docs = retriever.invoke(query)
-        return "\n\n".join(
-            f"[{d.metadata.get('section', '?')}]\n{d.page_content}" for d in docs
-        )
+        return "\n\n".join(f"[{d.metadata.get('section', '?')}]\n{d.page_content}" for d in docs)
 
     return search_document
