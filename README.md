@@ -90,7 +90,7 @@ uv run src/part2_tool_calling.py # Tool calling & date reasoning
 uv run src/part3_agent.py        # Multi-agent supervisor
 ```
 
-Each run writes a DEBUG-level log to `logs/` (e.g. `logs/2026-05-19_14-30-00_part1.log`). The FastMCP server for Part 2 is spawned automatically — no manual startup needed.
+Each run prints INFO-level output to the terminal. Full DEBUG-level logs (retrieved chunks, agent sub-queries, LLM responses) are written to `logs/` (e.g. `logs/2026-05-19_14-30-00_part1.log`). The FastMCP server for Part 2 is spawned automatically — no manual startup needed.
 
 ### First-run initialisation
 
@@ -119,6 +119,21 @@ Extracted two dates from pages 1 and 36, normalised them to ISO 8601 via the MCP
 Tested four queries: two multi-domain (routed to both agents in parallel), one single-domain, one off-topic. The supervisor correctly routed all four. The multi-domain and off-topic queries were answered correctly; the single-domain query retrieved the correct allocation figure but missed coverage details due to top-k retrieval depth.
 
 → [Full results and discussion](results/part_3/README.md)
+
+---
+
+## Challenges & Solutions
+
+Three non-obvious problems encountered during implementation and how they were resolved:
+
+**1. Docling markdown was missing footnotes**
+The initial `parse_pages()` output silently dropped `PAGE_FOOTER` items because Docling's `iterate_items()` skips them. Pages like the cover page were missing "Distributed on Budget Day" metadata. Fix: after the main iterate pass, `doc.texts` is scanned for `PAGE_FOOTER` items and appended to the relevant page. Running footers (e.g. "MINISTRY OF FINANCE", appearing on many pages) and bare page numbers are deduplicated and suppressed — only unique footers (≤2 pages) are kept. (`src/utils/parser.py`)
+
+**2. Tables were hard to chunk cleanly**
+Splitting markdown on `H1` headers alone produced oversized chunks whenever a section contained multiple large tables. A naive token split would break table rows from their headers. Fix: `_chunk_section()` in `src/utils/rag.py` detects table paragraphs (lines starting with `|`), groups each table with its preceding title paragraph and any following footnote paragraphs, and flushes preceding prose as a separate chunk. This keeps each table atomic while avoiding runaway chunk sizes.
+
+**3. Agent domain overlap**
+Early tests showed the revenue and expenditure agents occasionally answered each other's sub-questions when a query mentioned both topics in the same sentence. Fix: the supervisor now rewrites the original query into two focused sub-queries — one scoped strictly to revenue/tax, one strictly to expenditure/spending — before dispatching to each agent. Both agent system prompts also contain explicit exclusion guards (e.g. "Do not include expenditure, spending, fund allocations, or grant information"). (`src/prompts.yaml`, `src/part3_agent.py`)
 
 ---
 
