@@ -11,7 +11,7 @@ Three self-contained scripts share a common foundation (OpenAI client, Docling p
 │                    SHARED FOUNDATION                     │
 │                                                         │
 │  src/utils/llm.py    — singleton OpenAI client (gpt-4o) │
-│  src/utils/parser.py — Docling + pypdfium2 → markdown   │
+│  src/utils/parser.py — Docling → markdown                │
 └───────────────┬─────────────────────────────────────────┘
                 │ markdown (cached to data/cache/)
     ┌───────────┼──────────────────────┐
@@ -74,15 +74,17 @@ query
   │
   ▼
 supervisor node (GPT-4o)
-  │ routes to: revenue | expenditure | both
+  │ routes to: revenue | expenditure | both | reject
   ├──► revenue_agent ──► ChromaDB search ──► GPT-4o answer
-  └──► expenditure_agent ──► ChromaDB search ──► GPT-4o answer
-          │                       │
-          └───────────────────────┘
-                      │
-               synthesizer node (GPT-4o)
-                      │
-               final_answer
+  ├──► expenditure_agent ──► ChromaDB search ──► GPT-4o answer
+  │         │                       │
+  │         └───────────────────────┘
+  │                     │
+  │              synthesizer node (GPT-4o)
+  │                     │
+  │              final_answer
+  │
+  └──► reject_node ──► final_answer (off-topic message)
 ```
 
 ## Directory Structure

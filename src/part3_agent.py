@@ -48,6 +48,7 @@ class AgentState(TypedDict):
     next: Literal["revenue", "expenditure", "both", "reject"]
 
 
+# Used only for logging purposes to keep track of retrieved chunks; not part of the agent state
 def _split_chunks(context: str) -> list[str]:
     return re.split(r"\n\n(?=\[)", context)
 
