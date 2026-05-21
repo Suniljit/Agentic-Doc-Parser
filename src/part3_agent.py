@@ -33,8 +33,13 @@ DEMO_QUERIES = [
         "What are the key government revenue streams, and how will the Budget"
         " for the Future Energy Fund be supported?"
     ),
-    "What is the corporate income tax rate and how does it compare to previous years?",
+    (
+        "Which is larger in FY2024: the total revenue collected from all"
+        " 'Other Taxes' or the total expenditure allocated to the Ministry"
+        " of Social and Family Development?"
+    ),
     "How much has been allocated to the Future Energy Fund and what does it cover?",
+    "How is the weather like in Singapore?",
 ]
 
 
