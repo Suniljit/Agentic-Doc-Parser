@@ -1,14 +1,14 @@
-2026-05-19 20:12:00.122 | DEBUG    | utils.logging_config:setup_file_logging:19 - File logging active: logs/<timestamp>_part2.log
-2026-05-19 20:12:00.122 | DEBUG    | utils.parser:_get_document:70 - DoclingDocument cache hit (disk): fy2024_analysis_of_revenue_and_expenditure.json
-2026-05-19 20:12:00.155 | INFO     | __main__:main:122 - Extracting dates via GPT-4o tool calling
-2026-05-19 20:12:01.822 | DEBUG    | __main__:extract_dates:88 - Iteration 1: 2 tool call(s)
-2026-05-19 20:12:01.823 | DEBUG    | __main__:extract_dates:91 - Tool input — normalize_date: {'date_text': '16 February 2024'}
-2026-05-19 20:12:04.575 | DEBUG    | __main__:call_mcp_tool:51 - MCP round-trip (normalize_date): 2.752s
-2026-05-19 20:12:04.575 | DEBUG    | __main__:extract_dates:93 - Tool output — normalize_date: 2024-02-16
-2026-05-19 20:12:04.575 | DEBUG    | __main__:extract_dates:91 - Tool input — normalize_date: {'date_text': '15 February 2008'}
-2026-05-19 20:12:05.737 | DEBUG    | __main__:call_mcp_tool:51 - MCP round-trip (normalize_date): 1.162s
-2026-05-19 20:12:05.738 | DEBUG    | __main__:extract_dates:93 - Tool output — normalize_date: 2008-02-15
-2026-05-19 20:12:06.658 | DEBUG    | __main__:extract_dates:80 - LLM extracted date pairs: [{'original_text': 'Distributed on Budget Day: 16 February 2024', 'normalized_date': '2024-02-16'}, {'original_text': 'Estate Duty does not apply to a person who dies after 15 February 2008.', 'normalized_date': '2008-02-15'}]
-2026-05-19 20:12:06.658 | INFO     | __main__:main:130 - Classifying 2 date(s) against reference date 2024-01-01
-2026-05-19 20:12:06.658 | DEBUG    | __main__:main:131 - Classifier input: [{'original_text': 'Distributed on Budget Day: 16 February 2024', 'normalized_date': '2024-02-16'}, {'original_text': 'Estate Duty does not apply to a person who dies after 15 February 2008.', 'normalized_date': '2008-02-15'}]
-2026-05-19 20:12:08.223 | INFO     | __main__:main:134 - Classification complete: [{'original_text': 'Distributed on Budget Day: 16 February 2024', 'normalized_date': '2024-02-16', 'status': 'Upcoming'}, {'original_text': 'Estate Duty does not apply to a person who dies after 15 February 2008.', 'normalized_date': '2008-02-15', 'status': 'Expired'}]
+2026-05-21 13:59:44.424 | DEBUG    | utils.logging_config:setup_file_logging:19 - File logging active: logs/<timestamp>_part2.log
+2026-05-21 13:59:44.425 | DEBUG    | utils.parser:_get_document:71 - DoclingDocument cache hit (disk): fy2024_analysis_of_revenue_and_expenditure.json
+2026-05-21 13:59:44.488 | INFO     | __main__:main:109 - Extracting dates via GPT-4o tool calling
+2026-05-21 13:59:55.229 | DEBUG    | __main__:extract_dates:69 - GPT-4o response — content: None, tool_calls: [ChatCompletionMessageFunctionToolCall(id='call_9Fa3Qe3QvG1C1BpGPj7HJhFM', function=Function(arguments='{"date_text": "16 February 2024", "original_text": "Distributed on Budget Day: 16 February 2024"}', name='normalize_date'), type='function'), ChatCompletionMessageFunctionToolCall(id='call_BtBWCapKMmBRZAV5YmFfI1lG', function=Function(arguments='{"date_text": "15 February 2008", "original_text": "Estate Duty does not apply to a person who dies after 15 February 2008."}', name='normalize_date'), type='function')]
+2026-05-21 13:59:55.230 | DEBUG    | __main__:extract_dates:78 - Tool input — normalize_date: {'date_text': '16 February 2024', 'original_text': 'Distributed on Budget Day: 16 February 2024'}
+2026-05-21 13:59:56.591 | DEBUG    | __main__:call_mcp_tool:51 - MCP round-trip (normalize_date): 1.361s
+2026-05-21 13:59:56.591 | DEBUG    | __main__:extract_dates:80 - Tool output — normalize_date: 2024-02-16
+2026-05-21 13:59:56.591 | DEBUG    | __main__:extract_dates:78 - Tool input — normalize_date: {'date_text': '15 February 2008', 'original_text': 'Estate Duty does not apply to a person who dies after 15 February 2008.'}
+2026-05-21 13:59:57.739 | DEBUG    | __main__:call_mcp_tool:51 - MCP round-trip (normalize_date): 1.148s
+2026-05-21 13:59:57.739 | DEBUG    | __main__:extract_dates:80 - Tool output — normalize_date: 2008-02-15
+2026-05-21 13:59:57.739 | DEBUG    | __main__:extract_dates:83 - Extracted date pairs: [{'original_text': 'Distributed on Budget Day: 16 February 2024', 'normalized_date': '2024-02-16'}, {'original_text': 'Estate Duty does not apply to a person who dies after 15 February 2008.', 'normalized_date': '2008-02-15'}]
+2026-05-21 13:59:57.739 | INFO     | __main__:main:117 - Classifying 2 date(s) against reference date 2024-01-01
+2026-05-21 13:59:57.739 | DEBUG    | __main__:main:118 - Classifier input: [{'original_text': 'Distributed on Budget Day: 16 February 2024', 'normalized_date': '2024-02-16'}, {'original_text': 'Estate Duty does not apply to a person who dies after 15 February 2008.', 'normalized_date': '2008-02-15'}]
+2026-05-21 13:59:59.447 | INFO     | __main__:main:121 - Classification complete: [{'original_text': 'Distributed on Budget Day: 16 February 2024', 'normalized_date': '2024-02-16', 'status': 'Upcoming'}, {'original_text': 'Estate Duty does not apply to a person who dies after 15 February 2008.', 'normalized_date': '2008-02-15', 'status': 'Expired'}]

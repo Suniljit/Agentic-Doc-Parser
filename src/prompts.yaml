@@ -31,15 +31,8 @@ part2:
     1. The document's distribution date — in the "--- Page 1 ---" section. Look for the date the document was distributed on Budget Day.
     2. The date relating to estate duty — in the "--- Page 36 ---" section. This date may be embedded inline in a sentence (e.g. "abolished with effect from 15 February 2008").
 
-    For each date found, call normalize_date with just the raw date string (not the full sentence).
-
-    After receiving all normalized dates, return only a JSON array — no explanation, no markdown:
-    [
-      {
-        "original_text": "<the full sentence or phrase where the date appeared>",
-        "normalized_date": "<ISO date returned by normalize_date>"
-      }
-    ]
+    For each date found, call normalize_date with the raw date string as date_text and the full sentence as original_text.
+    Call normalize_date for all dates in a single response.
 
   classification: |
     You are a date classification assistant. The reference date is 2024-01-01.

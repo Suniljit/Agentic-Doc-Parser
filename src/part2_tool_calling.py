@@ -20,7 +20,6 @@ PDF_PATH = Path("data/fy2024_analysis_of_revenue_and_expenditure.pdf")
 CACHE_DIR = Path("data/cache")
 MAX_TOKENS_EXTRACTION = 512
 MAX_TOKENS_CLASSIFICATION = 512
-MAX_LOOP_ITERATIONS = 5
 
 _PROMPTS = yaml.safe_load((Path(__file__).parent / "prompts.yaml").read_text())
 
@@ -32,9 +31,10 @@ NORMALIZE_DATE_TOOL = {
         "parameters": {
             "type": "object",
             "properties": {
-                "date_text": {"type": "string", "description": "Raw date string to normalize"}
+                "date_text": {"type": "string", "description": "Raw date string to normalize"},
+                "original_text": {"type": "string", "description": "Full sentence where the date appeared"},
             },
-            "required": ["date_text"],
+            "required": ["date_text", "original_text"],
         },
     },
 }
@@ -53,48 +53,35 @@ async def call_mcp_tool(tool_name: str, arguments: dict) -> str:
 
 
 async def extract_dates(client, context: str) -> list[dict]:
-    messages: list = [
-        {"role": "system", "content": _PROMPTS["part2"]["extraction"]},
-        {"role": "user", "content": context},
-    ]
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": _PROMPTS["part2"]["extraction"]},
+            {"role": "user", "content": context},
+        ],
+        tools=[NORMALIZE_DATE_TOOL],
+        tool_choice="auto",
+        max_completion_tokens=MAX_TOKENS_EXTRACTION,
+        temperature=0,
+    )
 
-    for iteration in range(MAX_LOOP_ITERATIONS):
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=messages,
-            tools=[NORMALIZE_DATE_TOOL],
-            tool_choice="auto",
-            max_completion_tokens=MAX_TOKENS_EXTRACTION,
-            temperature=0,
-        )
+    msg = response.choices[0].message
+    logger.debug("GPT-4o response — content: {}, tool_calls: {}", msg.content, msg.tool_calls)
 
-        msg = response.choices[0].message
-        messages.append(msg)
+    if not msg.tool_calls:
+        logger.warning("GPT-4o returned no tool calls — cannot extract dates")
+        return []
 
-        if not msg.tool_calls:
-            try:
-                pairs = json.loads(msg.content)
-            except (json.JSONDecodeError, TypeError):
-                logger.warning("Could not parse extraction result as JSON: {}", msg.content)
-                return []
-            logger.debug("LLM extracted date pairs: {}", pairs)
-            for pair in pairs:
-                if not pair.get("normalized_date"):
-                    logger.warning(
-                        "normalize_date was not called for: {}", pair.get("original_text")
-                    )
-            return pairs
+    pairs = []
+    for tc in msg.tool_calls:
+        args = json.loads(tc.function.arguments)
+        logger.debug("Tool input — {}: {}", tc.function.name, args)
+        normalized_date = await call_mcp_tool(tc.function.name, {"date_text": args["date_text"]})
+        logger.debug("Tool output — {}: {}", tc.function.name, normalized_date)
+        pairs.append({"original_text": args["original_text"], "normalized_date": normalized_date})
 
-        logger.debug("Iteration {}: {} tool call(s)", iteration + 1, len(msg.tool_calls))
-        for tc in msg.tool_calls:
-            args = json.loads(tc.function.arguments)
-            logger.debug("Tool input — {}: {}", tc.function.name, args)
-            result = await call_mcp_tool(tc.function.name, args)
-            logger.debug("Tool output — {}: {}", tc.function.name, result)
-            messages.append({"role": "tool", "tool_call_id": tc.id, "content": result})
-
-    logger.warning("Tool-call loop hit max iterations ({}) without completing", MAX_LOOP_ITERATIONS)
-    return []
+    logger.debug("Extracted date pairs: {}", pairs)
+    return pairs
 
 
 async def classify_dates(client, date_pairs: list[dict]) -> list[dict]:
