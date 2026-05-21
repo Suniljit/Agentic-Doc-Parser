@@ -48,18 +48,19 @@ PDF ──► Docling ──► markdown ──► page slice (pp. 5,6,8,20)
 ```
 
 ### Part 2 — Tool Calling & Date Reasoning (`src/part2_tool_calling.py`)
-GPT-4o extracts dates via function calling, dispatching each to a FastMCP server over stdio. A second call classifies dates relative to `2024-01-01`.
+GPT-4o extracts dates via function calling, passing each raw date string and its source sentence to a FastMCP server over stdio. Python constructs the date pairs directly from the tool call arguments and results. A second GPT-4o call classifies dates relative to `2024-01-01`.
 
 ```
 PDF ──► Docling ──► markdown ──► page slice (pp. 1, 36)
                                       │
                                GPT-4o call (with tools)
-                               ◄── tool_calls ──►
+                               ◄── tool_calls (date_text, original_text)
                                MCP client (stdio)
                                ──► mcp/datetime_server.py
                                ◄── ISO date string
+                               Python builds date pairs from args + results
                                       │
-                               GPT-4o call #2
+                               GPT-4o call
                                (classify: Expired/Upcoming/Ongoing)
                                       │
                                JSON output
