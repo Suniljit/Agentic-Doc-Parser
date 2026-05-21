@@ -27,7 +27,7 @@ Produces one `Document` per H1 section with `metadata["section"]` = heading text
 
 **Phase 2 — Paragraph-level splitting within each section:**
 
-For each section Document, split content on `\n\n` into paragraphs, then:
+For each section Document, split content on `"  \n"` (two trailing spaces + newline — Markdown's hard line-break) into paragraphs, then:
 - **Table paragraph** (any line starts with `|`): merge with the preceding paragraph (table title) and any immediately following footnote/note paragraphs → emit as one atomic Document
 - **Prose paragraph**: emit as its own Document as-is
 

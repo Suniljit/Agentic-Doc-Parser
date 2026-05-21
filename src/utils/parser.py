@@ -37,6 +37,7 @@ _PDF_PIPELINE_OPTIONS = PdfPipelineOptions(
     ),
 )
 
+# Used to decide which text items to label as section headers in the markdown output.
 _HEADING_LABELS = frozenset({DocItemLabel.SECTION_HEADER, DocItemLabel.TITLE})
 
 # Module-level cache so the DoclingDocument survives for the duration of the process.
@@ -60,12 +61,12 @@ def _get_document(pdf_path: Path, cache_dir: Path) -> DoclingDocument:
         logger.debug("DoclingDocument cache hit (memory): {}", pdf_path.name)
         return _DOCUMENT_CACHE[cache_key]
 
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    json_cache = cache_dir / f"{pdf_path.stem}.json"
-
     # --- Level 2: JSON disk ---
     # DoclingDocument is a Pydantic model, so model_dump_json / model_validate_json
     # round-trips it without any custom serialisation logic.
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    json_cache = cache_dir / f"{pdf_path.stem}.json"
+
     if json_cache.exists():
         logger.debug("DoclingDocument cache hit (disk): {}", json_cache.name)
         doc = DoclingDocument.model_validate_json(json_cache.read_text(encoding="utf-8"))
@@ -73,7 +74,7 @@ def _get_document(pdf_path: Path, cache_dir: Path) -> DoclingDocument:
         return doc
 
     # --- Level 3: full parse ---
-    logger.info("Parsing {} with Docling (first run: ~60–100s + GPT-4o per chart)…", pdf_path.name)
+    logger.info("Parsing {} with Docling (first run: ", pdf_path.name)
     start = time.perf_counter()
     converter = DocumentConverter(
         format_options={InputFormat.PDF: PdfFormatOption(pipeline_options=_PDF_PIPELINE_OPTIONS)}
@@ -137,6 +138,7 @@ def parse_pages(
 
         # Label each item under the earliest requested page it touches so the LLM
         # can match content to the page numbers cited in the extraction prompt.
+        # Handles items that span multiple pages.
         primary_page = min(item_pages & page_set)
 
         try:
@@ -152,9 +154,11 @@ def parse_pages(
                 if md:
                     page_parts[primary_page].append(md)
             elif hasattr(item, "text") and item.text:
+                # Label section headers in markdown
                 if getattr(item, "label", None) in _HEADING_LABELS:
                     heading_level = max(1, getattr(item, "level", 1))
                     page_parts[primary_page].append(f"{'#' * heading_level} {item.text}")
+                # For regular text items, just append the text.
                 else:
                     page_parts[primary_page].append(item.text)
         except Exception as exc:
@@ -189,6 +193,7 @@ def parse_pages(
         primary_page = min(item_pages & page_set)
         page_parts[primary_page].append(item.text)
 
+    # Concatenate page parts in page number order.
     parts: list[str] = []
     for page_num in sorted(page_nums):
         if page_parts[page_num]:
